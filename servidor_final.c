@@ -28,7 +28,6 @@ typedef struct //struct para a psp. Login/pass
   char password[10];
 } User;
 
-<<<<<<< HEAD
 typedef struct {
     char data[40];
     char local[40];
@@ -38,8 +37,6 @@ typedef struct {
 }ocorrencia;
 
 
-=======
->>>>>>> e04beff408aaa093cd60f36a8ee0738d2fce947b
 int main()
 {
     int id=fork();   
@@ -267,7 +264,6 @@ return 0;
 
 void process_client(int client_fd)//psp
 {
-<<<<<<< HEAD
 	char menu_inicial[100];
 	int nread=0;
 	
@@ -358,7 +354,7 @@ void process_client(int client_fd)//psp
 		{
 			char aux[100]={"1"};
 			char opcao[100];
-			char filtro_1[100];
+
 			int nread=0;
 			
 			printf("\nUtilizador válido!\n");
@@ -400,13 +396,24 @@ void process_client(int client_fd)//psp
 			}
 			if(opcao[0]=='2')//procurar crimes por local
 			{
-				printf("Quero procurar por filtros");
-				nread= read(client_fd, filtro_1,100-1); //ler o que deseja fazer
-				opcao[nread]='\0';
-				printf("\no opcao e: %s \n", filtro_1);
+				char filtro_1[100];
+				char *mensagem="Insira o local para aplicar o filtro";
+				write(client_fd, mensagem,strlen(mensagem));
+
+				printf("Vamos ler o local: \n");
+				nread= read(client_fd, filtro_1,100-1); //ler o local
+				filtro_1[nread]='\0';
+				printf("\n O filtro 1 e %s \n", filtro_1);
 				
-				FILE *ocorrencias;
-				ocorrencias=fopen("crime.txt", "r");
+				
+				FILE *locais;
+				locais=fopen("crime.txt", "r");
+				if (locais==NULL)
+				{
+					printf("\nErro no ficheiro");
+					exit(1);
+				}
+				printf("\nFicheiro existe");
 				
 				for(int i=0; i<20; i++)
 				{
@@ -415,21 +422,25 @@ void process_client(int client_fd)//psp
 					char crime[10];
 					char nome[10];
 					char hora[10];
-					fscanf(ocorrencias,"%s%s%s%s%s", data, local, crime, nome, hora);
-							
+					fscanf(locais,"%s%s%s%s%s", data, hora, local, crime, nome);
+						
 					strcpy(crimes[i].data,data);
+					strcpy(crimes[i].hora,hora);
 					strcpy(crimes[i].local,local);
 					strcpy(crimes[i].crime,crime);
-					strcpy(crimes[i].nome,nome);
-					strcpy(crimes[i].hora,hora);
+					strcpy(crimes[i].nome,nome);			
 				}
-				fclose(ocorrencias);
-				
+				fclose(locais);
+								
 				for(int z=0; z<20;z++)
-				{
+				{					
 					if(strcmp(crimes[z].local, filtro_1)==0)
-					printf("Encontrei!!!");
-				}				
+					printf("\n  %s  %s  %s  %s  %s", crimes[z].data, crimes[z].hora, crimes[z].local, crimes[z].crime, crimes[z].nome);				
+				}	
+			}
+			else
+			{
+				printf("\nErro");
 			}
 		}
 		
@@ -439,103 +450,6 @@ void process_client(int client_fd)//psp
 			fflush(stdout);
 		}
 	}
-=======
-	User list[20];	
-			
-	User Login()
-	{
-		char username [BUF_SIZE];
-		char password [BUF_SIZE];
-		int nread=0;
-		
-		User lg;
-		nread= read(client_fd, username,BUF_SIZE-1); //ler o username
-		username[nread]='\0';
-		printf("\no username e: %s \n", username);
-			
-		nread=read(client_fd, password,BUF_SIZE-1); //ler o password
-		password[nread]='\0';
-		printf("\na password e: %s\n", password);
-		  
-		strcpy(lg.name, username);
-		strcpy(lg.password, password);
-		return lg;	 
-	}
-	
-	int exist (User u)
-	{
-		for(int i=0; i<20; i++)
-		{
-			if(strcmp(list[i].name, u.name)==0 && strcmp(list[i].password, u.password)==0)
-			{
-				return 1;
-			}
-		}
-		return -1;
-	}
-	
-	User u;
-	
-	FILE *ocorrencias;
-    ocorrencias=fopen("credenciais_psp.txt", "r");
-    
-        if(ocorrencias==NULL)
-    {
-    	printf("\nErro, ficheiro inexistente");
-    	exit(1);
-    }
-
-	for(int i=0; i<20; i++)
-	{
-		char uname[10];
-		char upassword[10];
-		fscanf(ocorrencias,"%s%s", uname, upassword);
-				
-		strcpy(list[i].name,uname);
-		strcpy(list[i].password,upassword);
-	}
-	fclose(ocorrencias);
-	u=Login();
-	fflush(stdout);
-	
-	if(exist(u)==1) //a credêncial e valida, mostramos as oorrẽncias
-	{
-		write(client_fd, "1", strlen("1"));
-		
-		fflush(stdin);
-		printf("\nUtilizador válido!\n");
-		
-		FILE *ficheiro;
-		ficheiro=fopen("crime.txt", "r");
-				
-		if(ficheiro==NULL)
-		{
-			printf("\nErro ao abrir ficheiro");
-			exit(1);
-		}
-		
-		char leitura [5000]= " "; //deixar aqui senao fica com lixo
-		char crimes[5000]=" ";
-		
-		while(fgets(crimes,sizeof(crimes), ficheiro)!=NULL)
-		{
-			strcat(leitura, crimes);
-			fflush(stdin);
-		}
-		fclose(ficheiro);
-				
-		write(client_fd, leitura, strlen(leitura));
-
-		fflush(stdout);
-	}
-	else 
-	{
-		printf("\nUtilizador nao existente\n");
-		fflush(stdout);
-	}	
-		
-	fclose(ocorrencias);
->>>>>>> e04beff408aaa093cd60f36a8ee0738d2fce947b
 
 	fflush(stdout);
 	close(client_fd); 

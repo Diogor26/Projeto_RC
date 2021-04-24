@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
 	erro("Connect");
 	
   //diferença do codigo original
-<<<<<<< HEAD
   char opcao[30];
   char mensagen[100];
   char username [100];
@@ -51,7 +50,8 @@ int main(int argc, char *argv[])
   char crime[5000];
   char aux[100];
   char menu_inicial[100];
-  char filtro_1[100];
+  char filtro_1[100]= " " ;
+  char local[100];
   
   printf("Bem vindo ao programa para PSP\n");
   printf("1->Criar conta");
@@ -75,22 +75,6 @@ int main(int argc, char *argv[])
   if(menu_inicial[0]=='2')//login
   { 
 	  write(fd, "2", strlen("2"));
-=======
-  int opcao=0;
-  char mensagen[100];
-  char username [100];
-  char password[100];
-  char crime[5000];
-  char aux[100];
-  
-  printf("Bem vindo ao programa de consulta de crimes\n");
-  printf("\nMenu");
-  printf("\n1->Login");
-  scanf("%d", &opcao);
-  
-  if(opcao==1)
-  {
->>>>>>> e04beff408aaa093cd60f36a8ee0738d2fce947b
 	  printf("\nLogin: \n");
 	  scanf("%s", username);
 	  write(fd, username, strlen(username));
@@ -99,7 +83,6 @@ int main(int argc, char *argv[])
 	  scanf("%s", password);
 	  write(fd, password, strlen(password));
 	  
-<<<<<<< HEAD
 	  nread=read(fd, opcao, 30-1);
 	  opcao[nread] = '\0'; 
 	  printf("A opcaoa tem o seguinte: ->%s\n", opcao);
@@ -123,10 +106,16 @@ int main(int argc, char *argv[])
 		 
 		 if(aux[0]=='2')//crimes por filtros
 		 {
-		      printf("\nProcurar crimes por local: \nInsira o local ");
-		      scanf("%s", filtro_1);
-		      write(fd, filtro_1, strlen(filtro_1));
-
+			char outra[100];
+			char filtro_1[100];
+			printf("Ler por filtros os crimes");
+			nread=read(fd, outra, 100-1);
+			outra[nread] = '\0'; 
+			printf("\n%s\n", outra);
+			scanf("%s", filtro_1);
+		    printf("\nfiltro= %s", filtro_1);
+		    write(fd, filtro_1, strlen(filtro_1));
+			
 		 }
 		 else
 		 printf("\nOpcao invalida");		  
@@ -140,29 +129,6 @@ int main(int argc, char *argv[])
   
 
 
-=======
-	  nread=read(fd, aux, 100-1); //ler os crimes
-      aux[nread] = '\0'; 
-      printf("\n%s", aux);//printa os crimes
-      
-      if (aux[0]==1)
-      {
-	  printf("\nOs crimes registados são: \n");
-	  nread=read(fd, crime, BUF_SIZE-1); //ler os crimes
-      crime[nread] = '\0'; 
-      printf("\n%s", crime);//printa os crimes
-		}
-	  if(aux[0]!=1)
-	  {
-		  	
-		printf("\nutilzador nao validor");
-
-		}
-  
-	  
-  }
-	  
->>>>>>> e04beff408aaa093cd60f36a8ee0738d2fce947b
   fflush(stdout);
   close(fd);
 }
