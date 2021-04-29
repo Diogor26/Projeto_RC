@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
   char menu_inicial[100];
   char filtro_1[100]= " " ;
   char local[100];
+  char mudar_pass[100];
   
   printf("Bem vindo ao programa para PSP\n");
   printf("1->Criar conta");
@@ -93,6 +94,8 @@ int main(int argc, char *argv[])
 		  printf("\nMenu");
 		  printf("\n1->consultar crimes ocorridos");
 		  printf("\n2->Consultar crimes por filtros");
+		  printf("\n3->alterar password da conta");
+		  printf("\n4->apagar conta");
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
@@ -102,26 +105,62 @@ int main(int argc, char *argv[])
 			  nread=read(fd, crime, 5000-1);
 			  crime[nread] = '\0'; 
 			  printf("\n%s\n", crime);
-		 }
-		 
-		 if(aux[0]=='2')//crimes por filtros
-		 {
-			char outra[100];
-			char filtro_1[100];
-			printf("Ler por filtros os crimes");
-			nread=read(fd, outra, 100-1);
-			outra[nread] = '\0'; 
-			printf("\n%s\n", outra);
-			scanf("%s", filtro_1);
-		    printf("\nfiltro= %s", filtro_1);
-		    write(fd, filtro_1, strlen(filtro_1));
+		  }
+		  
+		  if(aux[0]=='2')//crimes por filtros
+		  {
+			 char outra[100];
+			 char filtro_1[100];
+			 printf("Ler por filtros os crimes");
+			 nread=read(fd, outra, 100-1);
+			 outra[nread] = '\0'; 
+			 printf("\n%s\n", outra);
+			 scanf("%s", filtro_1);
+		     printf("\nfiltro= %s", filtro_1);
+		     write(fd, filtro_1, strlen(filtro_1));
 			
-		 }
-		 else
-		 printf("\nOpcao invalida");		  
-	  }
-	  else
-	  printf("\nUtilizador inválido");
+		  }
+		  if(aux[0]=='3')
+		  {
+			  char mensagem[100];
+			  nread=read(fd, mensagem, 100-1);
+			  mensagem[nread] = '\0'; 
+			  printf("\n%s\n", mensagem);
+			  
+			  scanf("%s", mudar_pass);
+			  write(fd, mudar_pass, strlen(mudar_pass));
+		  }
+		  if(aux[0]=='4')
+		  {
+			  char op[100];
+			  char mensagem_2[100];
+			  char mensagem_3[100];
+			  nread=read(fd, mensagem_2, 100-1);
+			  mensagem_2[nread] = '\0'; 
+			  printf("\n%s\n", mensagem_2);
+			  scanf("%s", op);
+			  
+			  if(op[0]=='1')
+			  write(fd, "1", strlen("1"));
+			  
+			  nread=read(fd, mensagem_3, 100-1);
+			  mensagem_3[nread] = '\0'; 
+			  printf("\n%s\n", mensagem_3);
+			  
+			  if(mensagem_2[0]=='1')
+			  {
+				  printf("\nconta apagada");
+
+				  exit(1);
+			  }
+				  
+			  
+		  }
+		  else
+		  printf("\nOpcao invalida");		  
+	   }
+	   else
+	   printf("\nUtilizador inválido");
   }
   
   else
