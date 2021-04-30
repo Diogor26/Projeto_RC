@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
   if(menu_inicial[0]=='1')//fazer login
   {
       printf("\nLogin");
-	  write(fd, "1", strlen("1"));
+	 
 	  
 	  printf("\nInsira o username: \n");
 	  scanf("%s", username_novo);
@@ -85,37 +85,19 @@ int main(int argc, char *argv[])
 		  printf("\nUtlizador Válido");
 		  printf("\nMenu");
 		  printf("\n1->Aprovar criação de contas");
+		  printf("\n2->Eliminar contas psp");
+		  printf("\n3->Eliminar contas saude");
+		  printf("\n4->Alterar palavra pass");
+		  printf("\n5->Eliminar conta pessoal");
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
-		  if(aux[0]=='1')
+		  if(aux[0]=='1')//aprovar criacao de contas
 		  {		
-			  aprovar list[20];  
-			  FILE *aprovacao;
-			  aprovacao=fopen("contas_aprovar.txt", "r");
-			
-			  if(aprovacao==NULL)
-			  {
-				  printf("\nErro, ficheiro inexistente");
-				  exit(1);
-			  }
-			  
-			  
-			  for(int i=0; i<20; i++)
-			  {
-				  char uname[10];
-				  char upassword[10];
-				  char func[10];
-			      fscanf(aprovacao,"%s%s%s", uname, upassword,func);
-					
-			      strcpy(list[i].name,uname);
-			      strcpy(list[i].password,upassword);
-			      strcpy(list[i].funcao, func);	
-		      }
-		      fclose(aprovacao);
 		      
-		      FILE *leitura_aprovacao;
+		      FILE *leitura_aprovacao, *temp;
 			  leitura_aprovacao=fopen("contas_aprovar.txt", "r");
+			  temp=fopen("temporario.txt", "w");
 			
 			  if(leitura_aprovacao==NULL)
 			  {
@@ -123,21 +105,57 @@ int main(int argc, char *argv[])
 				  exit(1);
 			  }
 		      
-		      printf("\nEstas sao as contas para autorizar:");
+		      printf("\nEstas sao as contas para autorizar: \n");
 			  
 			  while((ler_contas=fgetc(leitura_aprovacao))!=EOF)
 		      printf("%c", ler_contas);
+		      fclose(leitura_aprovacao);
 			  			  
-	      
-		      printf("\nInsra o nome das quais quer autorizar");
+			  FILE *leitura_aprovacao2;
+			  leitura_aprovacao2=fopen("contas_aprovar.txt", "r");
+		      printf("\nInsra o nome das quais quer autorizar: ");
 		      scanf("%s", nome_aut);
 		      
-		      for(int z=0; z<20;z++)
+		      char login[100];
+		      char pass[100];
+		      char funcao[100];
+		      printf("\n vou pasar para o while");
+		      
+		      while(fscanf(leitura_aprovacao2, "%s %s %s", login, pass, funcao)!=EOF)
+		      {
+				  if(strcmp(login, nome_aut)==0)
+				  {
+					  printf("\nentro no 1o if");
+					  if(strcmp(funcao, "psp")==0)//caso seja uma conta da psp
+					  {
+						  printf("e um psp");
+						  FILE *credenciais_psp;
+						  credenciais_psp=fopen("credenciais_psp.txt", "a");
+								
+						  if(credenciais_psp==NULL)
+						  {
+							  printf("\nErro, ficheiro inexistente");
+							  exit(1);
+						  }
+						  
+						  fprintf(credenciais_psp, "%s %s\n", login, pass);
+						  fclose(credenciais_psp);
+					  }
+				  }
+				  else
+				  {
+					fprintf(temp,"%s %s %s\n", login, pass, funcao);
+				  }
+			  }
+			  fclose(leitura_aprovacao2);
+			  fclose(temp);
+			  remove("contas_aprovar.txt");
+			  rename("temporario.txt", "contas_aprovar.txt");
+		      
+		      /*for(int z=0; z<20;z++)
 		      {
 				  if(strcmp(list[z].name, nome_aut)==0)//caso haja algum nome que o utulizar introduziu
-				  {
-					  printf("\n%s", list[z].funcao);
-					  
+				  {					  
 					  if(strcmp(list[z].funcao, "psp")==0)//caso seja uma conta da psp
 					  {
 						  printf("\nMeter no credenciais psp");
@@ -156,8 +174,6 @@ int main(int argc, char *argv[])
 						  remove("contas_aprovar.txt");					  
 									  
 						  fclose(leitura_aprovacao);
-						  
-						  goto sair_ciclo;
 					  }
 					  if(strcmp(list[z].funcao, "saude")==0)
 					  {
@@ -183,19 +199,86 @@ int main(int argc, char *argv[])
 					 
 					  else
 					  goto nenhum;
-				  }
-			  }
+				  
+		 }
 			  nenhum:
 			  printf("\nNenhuma conta encontrada");
 			  
 			  sair_ciclo:
-			  printf("\nConta inserida com sucesso");			 
+			  printf("\nConta inserida com sucesso");*/			 
 		 }
+		  if(aux[0]=='2')//eliminar contas psp
+		  {
+			 char contas_psp[100];
+			 char conta_apagar[100];
+			  
+			 nread=read(fd, contas_psp, 100-1);
+			 contas_psp[nread] = '\0'; 
+			 printf("\nEstas sao as contas atualmente: \n%s", contas_psp);
+			 
+			 printf("\nQual a conta que quer apagar?");
+			 scanf("%s", conta_apagar);
+			 write(fd, conta_apagar, strlen(conta_apagar));
+		  }
+		 
+		  if(aux[0]=='3')//eliminar contas saude
+		  {
+			 char contas_saude[100];
+			 char conta_saude_apagar[100];
+			  
+			 nread=read(fd, contas_saude, 100-1);
+			 contas_saude[nread] = '\0'; 
+			 printf("\nEstas sao as contas atualmente: \n%s", contas_saude);
+			 
+			 printf("\nQual a conta que quer apagar?");
+			 scanf("%s", conta_saude_apagar);
+			 write(fd, conta_saude_apagar, strlen(conta_saude_apagar));
+				
+		  }
+		 
+		  if(aux[0]=='4')//alterar pass 
+		  {
+			  char mensagem[100];
+			  char mudar_pass[100];
+			  
+			  nread=read(fd, mensagem, 100-1);
+			  mensagem[nread] = '\0'; 
+			  printf("\n%s\n", mensagem);
+			  
+			  scanf("%s", mudar_pass);
+			  write(fd, mudar_pass, strlen(mudar_pass));
+		  }
+		  
+		  if(aux[0]=='5')//eliminar conta
+		  {
+			  char op[100];
+			  char mensagem_2[100];
+			  char mensagem_3[100];
+			  nread=read(fd, mensagem_2, 100-1);
+			  mensagem_2[nread] = '\0'; 
+			  printf("\n%s\n", mensagem_2);
+			  scanf("%s", op);
+			  
+			  if(op[0]=='1')
+			  write(fd, "1", strlen("1"));
+			  
+			  nread=read(fd, mensagem_3, 100-1);
+			  mensagem_3[nread] = '\0'; 
+			  printf("\n%s\n", mensagem_3);
+			  
+			  if(mensagem_2[0]=='1')
+			  {
+				  printf("\nconta apagada");
+
+				  exit(1);
+			  }
+				
+		  }
 	  }
    }
    
-	else
-	printf("\nOpcao invalida");
+   else
+   printf("\nOpcao invalida");
 	
 	  
   fflush(stdout);

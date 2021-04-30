@@ -552,11 +552,15 @@ void process_client(int client_fd)//psp
 void process_client__(int client_fd)//gestor
 {	
 	User list[20];	
-			
+	char username [BUF_SIZE];
+	char password [BUF_SIZE];
+	char menu_inicial[100];
+	int nread=0;
+
+	
 	User Login()
 	{
-		char username [BUF_SIZE];
-		char password [BUF_SIZE];
+	
 		int nread=0;
 		
 		User lg;
@@ -611,9 +615,233 @@ void process_client__(int client_fd)//gestor
 	
 	if(exist(u)==1) //a credêncial e valida, mostramos as oorrẽncias
 	{
+		int nread=0;
+		char opcao[100];
 		fflush(stdin);
 		printf("\nGestor válido!\n");
-		write(client_fd, "\nGestor válido!\n", strlen("\nGestor válido!\n"));		
+		write(client_fd, "1", strlen("1"));		
+		
+		nread= read(client_fd, opcao,100-1); //ler o que deseja fazer
+		opcao[nread]='\0';
+		printf("\no opcao e: %s \n", opcao);
+
+		if(opcao[0]=='2')//eliminar contas psp
+		{
+			char contas_psp[100];
+			char contas_aux[100];
+			char conta_apagar[100];
+			
+			FILE *ficheiro;
+			ficheiro=fopen("credenciais_psp.txt", "r");
+						
+			if(ficheiro==NULL)
+			{
+				printf("\nErro ao abrir ficheiro");
+				exit(1);
+			}
+			
+			while(fgets(contas_aux,sizeof(contas_aux), ficheiro)!=NULL)
+			{
+				strcat(contas_psp, contas_aux);
+				fflush(stdin);
+			}
+			fclose(ficheiro);
+			
+			write(client_fd, contas_psp ,strlen(contas_psp));//envia os as contas para apagar
+			
+			char logar[100];
+			char pass[100];
+
+			nread= read(client_fd, conta_apagar,100-1); //ler a conta para apagar
+			conta_apagar[nread]='\0';
+			printf("\n-------------------->%s", conta_apagar);
+				
+			FILE *pass_psp, *temp;
+				
+			pass_psp=fopen("credenciais_psp.txt", "r");
+			temp=fopen("temporario.txt", "w");
+				
+			if (pass_psp==NULL)
+			{
+				printf("\nErro no ficheiro");
+				exit(1);
+			}
+					
+			if (temp==NULL)
+			{
+				printf("\nErro no ficheiro");
+				exit(1);
+			}
+					
+				
+			while(fscanf(pass_psp, "%s %s", logar, pass)!=EOF)
+			{
+				if(strcmp(conta_apagar, logar)!=0)
+				{
+					fprintf(temp,"%s %s\n", logar, pass);
+				}
+			}
+			printf("\nAcao concluida");
+			fclose(pass_psp);
+			fclose(temp);
+			
+			remove("credenciais_psp.txt");
+			rename("temporario.txt", "credenciais_psp.txt");					
+		}
+		
+		if(opcao[0]=='3')//eliminar conta saude
+		{
+			char contas_saude[100];
+			char contas_saude_aux[100];
+			char conta_para_apagar[100];
+			
+			FILE *ficheiro;
+			ficheiro=fopen("credenciais_saude.txt", "r");
+						
+			if(ficheiro==NULL)
+			{
+				printf("\nErro ao abrir ficheiro");
+				exit(1);
+			}
+			
+			while(fgets(contas_saude_aux,sizeof(contas_saude_aux), ficheiro)!=NULL)
+			{
+				strcat(contas_saude, contas_saude_aux);
+				fflush(stdin);
+			}
+			fclose(ficheiro);
+			
+			write(client_fd, contas_saude ,strlen(contas_saude));//envia os as contas para apagar
+			
+			char logar[100];
+			char pass[100];
+
+			nread= read(client_fd, conta_para_apagar,100-1); //ler a conta para apagar
+			conta_para_apagar[nread]='\0';
+			printf("\n-------------------->%s", conta_para_apagar);
+				
+			FILE *pass_saude, *temp;
+				
+			pass_saude=fopen("credenciais_saude.txt", "r");
+			temp=fopen("temporario.txt", "w");
+				
+			if (pass_saude==NULL)
+			{
+				printf("\nErro no ficheiro");
+				exit(1);
+			}
+					
+			if (temp==NULL)
+			{
+				printf("\nErro no ficheiro");
+				exit(1);
+			}
+					
+				
+			while(fscanf(pass_saude, "%s %s", logar, pass)!=EOF)
+			{
+				if(strcmp(conta_para_apagar, logar)!=0)
+				{
+					fprintf(temp,"%s %s\n", logar, pass);
+				}
+			}
+			printf("\nAcao concluida");
+			fclose(pass_saude);
+			fclose(temp);
+			
+			remove("credenciais_saude.txt");
+			rename("temporario.txt", "credenciais_saude.txt");	
+		}
+		
+		if(opcao[0]=='4')//alterar pss
+		{
+			char nova_pass[100];
+			char login[100];
+			char pass[100];
+			
+			write(client_fd, "Qual a nova password?", strlen("Qual a nova password?"));
+			nread= read(client_fd, nova_pass,100-1); //ler o local
+			nova_pass[nread]='\0';
+			printf("\n-------------------->%s", nova_pass);
+				
+			FILE *pass_psp, *temp;
+				
+			pass_psp=fopen("credenciais_gestor.txt", "r");
+			temp=fopen("temporario.txt", "w");
+				
+			if (pass_psp==NULL)
+			{
+				printf("\nErro no ficheiro");
+				exit(1);
+			}	
+				
+			while(fscanf(pass_psp, "%s %s", login, pass)!=EOF)
+			{
+				if(strcmp(username, login)!=0)
+				{
+					fprintf(temp,"%s %s\n", login, pass);
+				}
+				else
+				{
+					fprintf(temp,"%s %s\n", login, nova_pass);
+				}		
+			}
+			fclose(pass_psp);
+			fclose(temp);
+			remove("credenciais_gestor.txt");
+			rename("temporario.txt", "credenciais_gestor.txt");	
+		}
+		
+		if(opcao[0]=='5')//eliminar conta 
+		{
+			char logar[100];
+			char pass[100];
+			char choose[100];
+			write(client_fd, "\nDeseja mesmo eleminar a conta?", strlen("\nDeseja mesmo eleminar a conta?"));
+				
+			nread= read(client_fd, choose,100-1); //ler o local
+			choose[nread]='\0';
+			printf("\n-------------------->%s", choose);
+			
+			if(choose[0]=='1')//quer msm apagar a conta
+			{
+				FILE *pass_saude, *temp;
+				
+				pass_saude=fopen("credenciais_gestor.txt", "r");
+				temp=fopen("temporario.txt", "w");
+				
+				if (pass_saude==NULL)
+				{
+					printf("\nErro no ficheiro");
+					exit(1);
+				}
+					
+				if (temp==NULL)
+				{
+					printf("\nErro no ficheiro");
+					exit(1);
+				}
+					
+					
+				while(fscanf(pass_saude, "%s %s", logar, pass)!=EOF)
+				{
+					if(strcmp(username, logar)!=0)
+					{
+						fprintf(temp,"%s %s\n", logar, pass);
+					}
+					printf("\napaguei a conta");
+				}
+				fclose(pass_saude);
+				fclose(temp);
+				remove("credenciais_gestor.txt");
+				rename("temporario.txt", "credenciais_gestor.txt");
+				
+				printf("\nConta apagada com sucesso");
+				write(client_fd, "1", strlen("1"));
+				
+					
+			}
+		}
 	}
 	else 
 	{

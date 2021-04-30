@@ -120,7 +120,8 @@ int main(int argc, char *argv[])
 		     write(fd, filtro_1, strlen(filtro_1));
 			
 		  }
-		  if(aux[0]=='3')
+		  
+		  if(aux[0]=='3')//alterar pass
 		  {
 			  char mensagem[100];
 			  nread=read(fd, mensagem, 100-1);
@@ -130,7 +131,8 @@ int main(int argc, char *argv[])
 			  scanf("%s", mudar_pass);
 			  write(fd, mudar_pass, strlen(mudar_pass));
 		  }
-		  if(aux[0]=='4')
+		  
+		  if(aux[0]=='4')//apagar conta
 		  {
 			  char op[100];
 			  char mensagem_2[100];
