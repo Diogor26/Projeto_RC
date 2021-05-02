@@ -1,6 +1,3 @@
-//App para gestor
-//Sockets TCP
-
 
 #include <stdio.h>
 #include <sys/types.h>

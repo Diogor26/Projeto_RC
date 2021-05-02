@@ -57,7 +57,7 @@ int main()
 			char buffer[1024];
 		    char user_saude[40];
 		    char pass_saude[40];
-		  		  
+		  	char menu_inicial[100];
 		    //char cred[5000];
 		    char opcao[100];
 		    char aux[40];
@@ -85,36 +85,68 @@ int main()
 
 			/*Initialize size variable to be used later on*/
 			addr_size = sizeof serverStorage;
-  
-		    User Login()
+
+			nBytes = recvfrom(udpSocket,menu_inicial,strlen(menu_inicial)+1,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe o username
+			printf("A opcao inicial e: %s \n", menu_inicial);
+			
+			
+			
+			if(menu_inicial[0]=='1')
 			{
-				User lg;
-				nBytes = recvfrom(udpSocket,user_saude,40,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe o username
-				printf("User:%s\n", user_saude);
+				char username_novo [100];
+				char password_novo [100];
 				
-				nBytes = recvfrom(udpSocket,pass_saude,40,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe a pass
-				printf("Pass:%s\n", pass_saude);
-			 
-				strcpy(lg.name, user_saude);
-				strcpy(lg.password, pass_saude);
-				//nBytes = recvfrom(udpSocket,aux,40,0,(struct sockaddr *)&serverStorage, &addr_size);//por causa de um bug
-				return lg;	 
-			}
-	
-			int exist (User u)
-			{
-				for(int i=0; i<20; i++)
+				printf("\nTOu pronto para criar conta");
+				nBytes = recvfrom(udpSocket,username_novo,strlen(username_novo)+1,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe o username
+				printf("\no username e: %s \n", username_novo);
+						
+				nBytes = recvfrom(udpSocket,password_novo,strlen(password_novo)+1,0,(struct sockaddr *)&serverStorage, &addr_size);
+				printf("\na password e: %s\n", password_novo);
+				
+				FILE *ficheiro;
+				ficheiro=fopen("contas_aprovar.txt", "a");
+				
+				if(ficheiro==NULL)
 				{
-					if(strcmp(list[i].name, u.name)==0 && strcmp(list[i].password, u.password)==0)
-					{
-						return 1;
-					}	
+					printf("\nErro");
+					exit(1);
 				}
-			return -1;
+				fprintf(ficheiro,"%s %s %s\n", username_novo, password_novo, "saude");
+				
+				fclose(ficheiro);
 			}
-	
-			while(1)
+			if(menu_inicial[0]=='2')//fazer login
 			{
+				printf("\nVamos fazer login");
+				
+				User Login()
+				{
+					User lg;
+					nBytes = recvfrom(udpSocket,user_saude,40,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe o username
+					printf("User:%s\n", user_saude);
+					
+					nBytes = recvfrom(udpSocket,pass_saude,40,0,(struct sockaddr *)&serverStorage, &addr_size);//recebe a pass
+					printf("Pass:%s\n", pass_saude);
+				 
+					strcpy(lg.name, user_saude);
+					strcpy(lg.password, pass_saude);
+					//nBytes = recvfrom(udpSocket,aux,40,0,(struct sockaddr *)&serverStorage, &addr_size);//por causa de um bug
+					return lg;	 
+				}
+		
+				int exist (User u)
+				{
+					for(int i=0; i<20; i++)
+					{
+						if(strcmp(list[i].name, u.name)==0 && strcmp(list[i].password, u.password)==0)
+						{
+							return 1;
+						}	
+					}
+				return -1;
+				}
+				
+				
 				User u;
 			
 				//ir verificar se as credenciais existem	
@@ -142,24 +174,114 @@ int main()
 			
 				if(exist(u)==1) //a credêncial e valida?
 				{
+					sendto(udpSocket,"1",1+1,0,(struct sockaddr *)&serverStorage,addr_size);
 					printf("sucess\n");
-					sendto(udpSocket,"1",1,0,(struct sockaddr *)&serverStorage,addr_size);
-					fflush(stdout);
-										//Recebe queixa
-					nBytes = recvfrom(udpSocket,buffer,1024,0,(struct sockaddr *)&serverStorage, &addr_size);
-					printf("\n Submissao de crime: \n%s\n", buffer);
-					ficheiro=fopen("crime.txt", "a");
+					char menu[100]=" ";
 					
-					if(ficheiro==NULL)
+					nBytes = recvfrom(udpSocket,menu,strlen(menu)+1,0,(struct sockaddr *)&serverStorage, &addr_size);
+					//printf("a char opcao e :--------------->%s---", bla);
+					
+					if(menu[0]=='1')
 					{
-						printf("Erro ao abrir ficheiro");
-						exit(1);
+						printf("\nEntrou na op 1");
+											//Recebe queixa
+						nBytes = recvfrom(udpSocket,buffer,1024,0,(struct sockaddr *)&serverStorage, &addr_size);
+						printf("\n Submissao de crime: \n%s\n", buffer);
+						ficheiro=fopen("crimes.txt", "a");
+						
+						if(ficheiro==NULL)
+						{
+							printf("Erro ao abrir ficheiro");
+							exit(1);
+						}
+						
+						fprintf(ficheiro,"%s\n", buffer);
+						fclose(ficheiro);
+						printf("\nProcesso completo! Crime reportado guardado!\n\n");
 					}
+					if(menu[0]=='2')//alterar pass
+					{
+						char login[100];
+						char pass[100];
+						char nova_pass[100];
+						nBytes = recvfrom(udpSocket,nova_pass,strlen(nova_pass)+1,0,(struct sockaddr *)&serverStorage, &addr_size);
+
+						printf("\n-------------------->%s", nova_pass);
+						
+						FILE *pass_saude, *temp;
+						
+						pass_saude=fopen("credenciais_saude.txt", "r");
+						temp=fopen("temporario.txt", "w");
+						
+						if (pass_saude==NULL)
+						{
+							printf("\nErro no ficheiro");
+							exit(1);
+						}
+
+						
+						while(fscanf(pass_saude, "%s %s", login, pass)!=EOF)
+						{
+							if(strcmp(user_saude, login)!=0)
+							{
+								fprintf(temp,"%s %s\n", login, pass);
+							}
+							else
+							{
+								fprintf(temp,"%s %s\n", login, nova_pass);
+							}		
+						}
+						fclose(pass_saude);
+						fclose(temp);
+						remove("credenciais_saude.txt");
+						rename("temporario.txt", "credenciais_saude.txt");	
+						
+					}
+					if(menu[0]=='3')//apagar conta
+					{
+						char apagar[100];
+						char logar[100];
+						char pass[100];
+						nBytes = recvfrom(udpSocket,apagar,strlen(apagar)+1,0,(struct sockaddr *)&serverStorage, &addr_size);
+						
+						if(apagar[0]=='1')
+						{
+							FILE *pass_saude, *temp;
 					
-					fprintf(ficheiro,"%s\n", buffer);
-					fclose(ficheiro);
-					printf("\nProcesso completo! Crime reportado guardado!\n\n");
-					break;
+							pass_saude=fopen("credenciais_saude.txt", "r");
+							temp=fopen("temporario.txt", "w");
+							
+							if (pass_saude==NULL)
+							{
+								printf("\nErro no ficheiro");
+								exit(1);
+							}
+							
+							if (temp==NULL)
+							{
+								printf("\nErro no ficheiro");
+								exit(1);
+							}
+							
+							
+							while(fscanf(pass_saude, "%s %s", logar, pass)!=EOF)
+							{
+								if(strcmp(user_saude, logar)!=0)
+								{
+									fprintf(temp,"%s %s\n", logar, pass);
+								}
+								printf("\napaguei a conta");
+							}
+							fclose(pass_saude);
+							fclose(temp);
+							remove("credenciais_saude.txt");
+							rename("temporario.txt", "credenciais_saude.txt");
+							
+							printf("\nConta apagada com sucesso");
+						}
+					}
+					else
+					printf("\nta a dar erro!!!!!!!!!!!");
 				}
 				else 
 				{
@@ -168,7 +290,7 @@ int main()
 					fflush(stdout);
 					break;
 				}		
-			}//fim ciclo while
+			}
 		return 0;
         }//fim do servidor UDP
         
@@ -287,7 +409,17 @@ void process_client(int client_fd)//psp
 		password_novo[nread]='\0';
 		printf("\na password e: %s\n", password_novo);
 		
-		//falta mandar para o administrador
+		FILE *ficheiro;
+		ficheiro=fopen("contas_aprovar.txt", "a");
+		
+		if(ficheiro==NULL)
+		{
+			printf("\nErro");
+			exit(1);
+		}
+		fprintf(ficheiro,"%s %s %s\n", username_novo, password_novo, "psp");
+		
+		fclose(ficheiro);
 	}
 	
 	if(menu_inicial[0]=='2')//login e posterior

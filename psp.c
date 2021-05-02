@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
 	  printf("\n Insira a Password: \n");
 	  scanf("%s", password_novo);
 	  write(fd, password_novo, strlen(password_novo));
+	  
+	  
   }
   
   if(menu_inicial[0]=='2')//login
