@@ -52,9 +52,11 @@ int main(int argc, char *argv[])
   char nome_aut[100];
   char ler_contas;
   
-  printf("Bem vindo ao programa do gestor\n");
+  menu_inicial:
+  printf("\nBem vindo ao programa do gestor\n");
   printf("\n1->Login");
   scanf("%s", menu_inicial);
+  write(fd, menu_inicial, strlen(menu_inicial));
   
   if(menu_inicial[0]=='1')//fazer login
   {
@@ -159,7 +161,7 @@ int main(int argc, char *argv[])
 			  rename("temporario.txt", "contas_aprovar.txt");	
 			  
 			  goto menu_principal;	 
-		 }
+		  }
 		  if(aux[0]=='2')//eliminar contas psp
 		  {
 			 char contas_psp[100];
@@ -231,13 +233,26 @@ int main(int argc, char *argv[])
 
 				  exit(1);
 			  }	
+			  goto menu_inicial;
 		  }
-	  }
-   }
-   
-   else
-   printf("\nOpcao invalida");
-	
+		  else
+		  {
+			  printf("\nOpcao invalida");
+			  goto menu_principal;
+		  }
+       }	
+	   else
+	   {
+		   printf("\nUtilizador invalido");
+		   goto menu_inicial;
+	   }
+  }
+  else
+  {
+	  printf("\nOpcao invalida");
+	  
+	  goto menu_inicial;
+  }
 	  
   fflush(stdout);
   close(fd);

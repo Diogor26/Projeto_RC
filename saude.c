@@ -47,10 +47,11 @@ int main(){
 		printf("Opcao:");
 		scanf("%s", menu);
 		
-		if(menu[0]=='1')
+		if(menu[0]=='1')//criar conta
 		{
 			char username_novo[100];
 			char password_novo[100];
+
 			printf("\nVamos criar uma conta");
 			sendto(clientSocket,"1",strlen("1")+1,0,(struct sockaddr *)&serverAddr,addr_size);
 			  
@@ -61,10 +62,12 @@ int main(){
 			printf("\n Insira a Password: \n");
 			scanf("%s", password_novo);
 			sendto(clientSocket,password_novo,strlen(password_novo)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+			printf("\nAguarde que o gestor do sistema aprove a conta");
+			goto menu_inicial;
 		}
 		
 		
-		if(menu[0]=='2')
+		if(menu[0]=='2')//login
 		{
 			sendto(clientSocket,"2",strlen("2")+1,0,(struct sockaddr *)&serverAddr,addr_size);
 			
@@ -91,6 +94,7 @@ int main(){
 			if(aux[0]=='1')
 			{
 				printf("Login efetuado com sucesso!!\n");
+				menu_principal:
 				printf("\nMenu");
 				printf("\n1->comunicar um crime");
 				printf("\n2->alterar password da conta");
@@ -128,6 +132,8 @@ int main(){
 					
 					sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
 					printf("Obrigado pela sua colaboracao!"); 
+					
+					goto menu_principal;
 				}
 				if(menu_2[0]=='2')//alterar pass da conta
 				{
@@ -137,25 +143,40 @@ int main(){
 					 
 					 
 					sendto(clientSocket,nova_pass, strlen(nova_pass)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+					
+					goto menu_principal;
 				}
 				
 				if(menu_2[0]=='3')//apagar conta 
 				{
 					char certeza[100];
-					printf("deseja msm apagar a conta?");
+					printf("deseja mesmo apagar a conta?");
 					scanf("%s", certeza);
 					
 					if(certeza[0]=='1')
-					sendto(clientSocket,certeza, strlen(certeza)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+					{
+						sendto(clientSocket,certeza, strlen(certeza)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+						goto menu_inicial;
+					}
 					
 					else
-					printf("\nNao vamos apagar");									
+					{	
+					    printf("\nNao vamos apagar");	
+					    goto menu_principal;
+					}								
 				}
+				
 				else
-				printf("\nOpcao invalida");			
+				{				
+					printf("\nOpcao invalida");
+					goto menu_principal;
+				}		
 			}
 			else
-			printf("\nUtilizador inválido!");
+			{
+			    printf("\nUtilizador inválido!");
+			    goto menu_inicial;
+			}
 			
 		}
 		
@@ -165,40 +186,6 @@ int main(){
 			goto menu_inicial;
 
 		}
-		
-		//sendto(clientSocket,"1", 1,0,(struct sockaddr *)&serverAddr,addr_size);
-		
-		
-		// Apresentação do crime
-		/*
-		printf("Queixa a presentar:\n");
-		
-		printf("Data: ");
-        scanf("%s", info.data);
-        
-        printf("\nHora: ");
-        scanf("%s", info.hora);
-        
-        printf("\nLocal: ");
-        scanf("%s", info.local);
-        
-        
-        
-        printf("\nTipo de Agressao: ");
-        scanf("%s", info.crime);
-        
-        
-        
-        printf("\nNome: ");
-        scanf("%s", info.nome);
-        
-        snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
-        
-        nBytes = strlen(buffer) + 1;
-        
-        sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
-        printf("Obrigado pela sua colaboracao!"); 
-    */
  }   
-    return 0;
+  return 0;
 }

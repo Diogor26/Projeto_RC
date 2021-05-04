@@ -50,7 +50,8 @@ int main(int argc, char *argv[])
   char menu_inicial[100];
   char mudar_pass[100];
   
-  printf("Bem vindo ao programa para PSP\n");
+  menu_inicial:
+  printf("\nBem vindo ao programa para PSP\n");
   printf("\n1->Criar conta");
   printf("\n2->Login");
   scanf("%s", menu_inicial);
@@ -68,7 +69,8 @@ int main(int argc, char *argv[])
 	  scanf("%s", password_novo);
 	  write(fd, password_novo, strlen(password_novo));
 	  
-	  
+	  goto menu_inicial;
+ 
   }
   
   if(menu_inicial[0]=='2')//login
@@ -92,9 +94,10 @@ int main(int argc, char *argv[])
 		  menu_principal:
 		  printf("\nMenu");
 		  printf("\n1->consultar crimes ocorridos");
-		  printf("\n2->Consultar crimes por filtros");
-		  printf("\n3->alterar password da conta");
-		  printf("\n4->apagar conta");
+		  printf("\n2->Consultar crimes por local");
+		  printf("\n3->Consultar crimes por data");
+		  printf("\n4->alterar password da conta");
+		  printf("\n5->apagar conta");
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
@@ -108,7 +111,7 @@ int main(int argc, char *argv[])
 			  goto menu_principal;
 		  }
 		  
-		  if(aux[0]=='2')//crimes por filtros
+		  if(aux[0]=='2')//crimes por local
 		  {
 			 char outra[100];
 			 char filtro_1[100];
@@ -121,6 +124,46 @@ int main(int argc, char *argv[])
 			 char nome[100];
 			 
 			 printf("Ler por filtros os crimes");
+			 nread=read(fd, outra, 100-1);
+			 outra[nread] = '\0'; 
+			 printf("\n%s\n", outra);
+			 scanf("%s", filtro_1);
+		     printf("\nfiltro= %s\n", filtro_1);
+		     write(fd, filtro_1, strlen(filtro_1));
+			
+		
+			 nread=read(fd, sair, 100-1);
+			 sair[nread] = '\0';
+			 
+			 FILE *temp;
+				temp=fopen("temporario.txt", "r");
+				
+			 if(sair[0]=='1')
+			 {			 
+				 while(fscanf(temp,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
+				 {
+					 printf("\n");
+					printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);
+				 }	
+				 fclose(temp);
+				 remove("temporario.txt");		
+			 }
+			 goto menu_principal;
+		  }
+		  
+		  if(aux[0]=='3')//crimes por hora
+		  {
+			 char outra[100];
+			 char filtro_1[100];
+			 char sair[100];
+			 
+			 char data[100];
+			 char hora[100];
+			 char local[100];
+			 char crime[100];
+			 char nome[100];
+			 
+			 printf("\nAplicar filtro das horas dos crimes");
 			 nread=read(fd, outra, 100-1);
 			 outra[nread] = '\0'; 
 			 printf("\n%s\n", outra);
@@ -141,12 +184,13 @@ int main(int argc, char *argv[])
 				 {
 					printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);
 				 }	
-				 remove("temporario.txt");		
+				 fclose(temp);
+			     remove("temporario.txt");		
 			 }
 			 goto menu_principal;
+			 
 		  }
-		  
-		  if(aux[0]=='3')//alterar pass
+		  if(aux[0]=='4')//alterar pass
 		  {
 			  char mensagem[100];
 			  nread=read(fd, mensagem, 100-1);
@@ -159,7 +203,7 @@ int main(int argc, char *argv[])
 			  goto menu_principal;
 		  }
 		  
-		  if(aux[0]=='4')//apagar conta
+		  if(aux[0]=='5')//apagar conta
 		  {
 			  char op[100];
 			  char mensagem_2[100];
@@ -186,15 +230,20 @@ int main(int argc, char *argv[])
 			  goto menu_principal;		  
 		  }
 		  else
-		  printf("\nOpcao invalida");		  
+		  printf("\nOpcao invalida");		
+		  goto menu_principal;  
 	   }
 	   else
 	   printf("\nUtilizador inválido");
+	   goto menu_inicial;
   }
   
   else
-  printf("\nOpcao nao valida");
-
+  {
+      printf("\nOpcao nao valida");
+	  goto menu_inicial;
+  }
+  
   fflush(stdout);
   close(fd);
 }
