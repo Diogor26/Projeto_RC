@@ -21,10 +21,9 @@ typedef struct //struct para a psp. Login/pass
 
 int main(int argc, char *argv[]) 
 {
-  char endServer[100], buffer[BUF_SIZE];
-  int fd, client, nread;
-  struct sockaddr_in addr, client_addr;
-  int client_addr_size;
+  char endServer[100];
+  int fd, nread;
+  struct sockaddr_in addr;
   struct hostent *hostPtr;
 
   strcpy(endServer, argv[1]);
@@ -45,15 +44,12 @@ int main(int argc, char *argv[])
 	erro("Connect");
 	
   //diferença do codigo original
-  char mensagen[100];
   char username_novo [100];
   char password_novo[100];
-  char estado[5000];
   char menu_inicial[100];
   char opcao[100];
   char aux[100];
   char nome_aut[100];
-  char autorizacao[100];
   char ler_contas;
   
   printf("Bem vindo ao programa do gestor\n");
@@ -63,8 +59,7 @@ int main(int argc, char *argv[])
   if(menu_inicial[0]=='1')//fazer login
   {
       printf("\nLogin");
-	 
-	  
+
 	  printf("\nInsira o username: \n");
 	  scanf("%s", username_novo);
 	  write(fd, username_novo, strlen(username_novo));
@@ -75,11 +70,13 @@ int main(int argc, char *argv[])
 	  
 	  nread=read(fd, opcao, 30-1);
 	  opcao[nread] = '\0'; 
-	  printf("A opcaoa tem o seguinte: ->%s\n", opcao);
 	  
 	  if(opcao[0]=='1') //utilizador validado
 	  {	  
 		  printf("\nUtlizador Válido");
+		  
+		  menu_principal:
+		  
 		  printf("\nMenu");
 		  printf("\n1->Aprovar criação de contas");
 		  printf("\n2->Eliminar contas psp");
@@ -91,7 +88,6 @@ int main(int argc, char *argv[])
 		  
 		  if(aux[0]=='1')//aprovar criacao de contas
 		  {		
-		      
 		      FILE *leitura_aprovacao, *temp;
 			  leitura_aprovacao=fopen("contas_aprovar.txt", "r");
 			  temp=fopen("temporario.txt", "w");
@@ -116,16 +112,13 @@ int main(int argc, char *argv[])
 		      char login[100];
 		      char pass[100];
 		      char funcao[100];
-		      printf("\n vou pasar para o while");
 		      
 		      while(fscanf(leitura_aprovacao2, "%s %s %s", login, pass, funcao)!=EOF)
 		      {
 				  if(strcmp(login, nome_aut)==0)
 				  {
-					  printf("\nentro no 1o if");
 					  if(strcmp(funcao, "psp")==0)//caso seja uma conta da psp
 					  {
-						  printf("e um psp");
 						  FILE *credenciais_psp;
 						  credenciais_psp=fopen("credenciais_psp.txt", "a");
 								
@@ -137,6 +130,22 @@ int main(int argc, char *argv[])
 						  
 						  fprintf(credenciais_psp, "%s %s\n", login, pass);
 						  fclose(credenciais_psp);
+						  printf("\nConta adicionada com sucesso");
+					  }
+					  if(strcmp(funcao, "saude")==0)//caso seja uma conta da psp
+					  {
+						  FILE *credenciais_saude;
+						  credenciais_saude=fopen("credenciais_saude.txt", "a");
+								
+						  if(credenciais_saude==NULL)
+						  {
+							  printf("\nErro, ficheiro inexistente");
+							  exit(1);
+						  }
+						  
+						  fprintf(credenciais_saude, "%s %s\n", login, pass);
+						  fclose(credenciais_saude);
+						  printf("\nConta adicionada com sucesso");
 					  }
 				  }
 				  else
@@ -147,68 +156,15 @@ int main(int argc, char *argv[])
 			  fclose(leitura_aprovacao2);
 			  fclose(temp);
 			  remove("contas_aprovar.txt");
-			  rename("temporario.txt", "contas_aprovar.txt");
-		      
-		      /*for(int z=0; z<20;z++)
-		      {
-				  if(strcmp(list[z].name, nome_aut)==0)//caso haja algum nome que o utulizar introduziu
-				  {					  
-					  if(strcmp(list[z].funcao, "psp")==0)//caso seja uma conta da psp
-					  {
-						  printf("\nMeter no credenciais psp");
-						  
-						  FILE *credenciais_psp;
-						  credenciais_psp=fopen("credenciais_psp.txt", "a");
-								
-						  if(credenciais_psp==NULL)
-						  {
-							  printf("\nErro, ficheiro inexistente");
-							  exit(1);
-						  }
-						  
-						  fprintf(credenciais_psp, "%s %s", list[z].name, list[z].password);
-						  fclose(credenciais_psp);
-						  remove("contas_aprovar.txt");					  
-									  
-						  fclose(leitura_aprovacao);
-					  }
-					  if(strcmp(list[z].funcao, "saude")==0)
-					  {
-						  
-						  printf("\nMeter no credenciais saude");
-						  
-						  FILE *credenciais_saude;
-						  credenciais_saude=fopen("credenciais_saude.txt", "a");
-								
-						  if(credenciais_saude==NULL)
-						  {
-							  printf("\nErro, ficheiro inexistente");
-							  exit(1);
-						  }
-						  
-						  fprintf(credenciais_saude, "%s %s", list[z].name, list[z].password);
-						  fclose(credenciais_saude);
-						  remove("contas_aprovar.txt");					  
-									  
-						  fclose(leitura_aprovacao);
-						  goto sair_ciclo;
-				      }
-					 
-					  else
-					  goto nenhum;
-				  
-		 }
-			  nenhum:
-			  printf("\nNenhuma conta encontrada");
+			  rename("temporario.txt", "contas_aprovar.txt");	
 			  
-			  sair_ciclo:
-			  printf("\nConta inserida com sucesso");*/			 
+			  goto menu_principal;	 
 		 }
 		  if(aux[0]=='2')//eliminar contas psp
 		  {
 			 char contas_psp[100];
 			 char conta_apagar[100];
-			  
+			 			  
 			 nread=read(fd, contas_psp, 100-1);
 			 contas_psp[nread] = '\0'; 
 			 printf("\nEstas sao as contas atualmente: \n%s", contas_psp);
@@ -216,6 +172,9 @@ int main(int argc, char *argv[])
 			 printf("\nQual a conta que quer apagar?");
 			 scanf("%s", conta_apagar);
 			 write(fd, conta_apagar, strlen(conta_apagar));
+			 
+			 goto menu_principal;
+
 		  }
 		 
 		  if(aux[0]=='3')//eliminar contas saude
@@ -229,8 +188,9 @@ int main(int argc, char *argv[])
 			 
 			 printf("\nQual a conta que quer apagar?");
 			 scanf("%s", conta_saude_apagar);
-			 write(fd, conta_saude_apagar, strlen(conta_saude_apagar));
-				
+			 write(fd, conta_saude_apagar, strlen(conta_saude_apagar));	
+			 
+			 goto menu_principal;
 		  }
 		 
 		  if(aux[0]=='4')//alterar pass 
@@ -244,6 +204,8 @@ int main(int argc, char *argv[])
 			  
 			  scanf("%s", mudar_pass);
 			  write(fd, mudar_pass, strlen(mudar_pass));
+			  
+			  goto menu_principal;
 		  }
 		  
 		  if(aux[0]=='5')//eliminar conta
@@ -268,8 +230,7 @@ int main(int argc, char *argv[])
 				  printf("\nconta apagada");
 
 				  exit(1);
-			  }
-				
+			  }	
 		  }
 	  }
    }

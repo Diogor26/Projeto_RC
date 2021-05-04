@@ -494,6 +494,7 @@ void process_client(int client_fd)//psp
 			printf("\nO nuimero enviasdo foi %s", aux);
 			write(client_fd, aux, strlen(aux));
 			
+			menu_principal:
 			nread= read(client_fd, opcao,100-1); //ler o que deseja fazer
 			opcao[nread]='\0';
 			printf("\no opcao e: %s \n", opcao);
@@ -502,7 +503,7 @@ void process_client(int client_fd)//psp
 			{
 				printf("\nQuero ler os crimes");
 				FILE *ficheiro;
-				ficheiro=fopen("crime.txt", "r");
+				ficheiro=fopen("crimes.txt", "r");
 						
 				if(ficheiro==NULL)
 				{
@@ -526,51 +527,51 @@ void process_client(int client_fd)//psp
 				write(client_fd, leitura ,strlen(leitura));//envia os crimes para o o psp
 
 				fflush(stdout);
+				
+				goto menu_principal;
 			}
 			
 			if(opcao[0]=='2')//procurar crimes por local
 			{
 				char filtro_1[100];
+				
+				char data[100];
+				char hora[100];
+				char local[100];
+				char crime[100];
+				char nome[100];
 				char *mensagem="Insira o local para aplicar o filtro";
 				write(client_fd, mensagem,strlen(mensagem));
 
 				printf("Vamos ler o local: \n");
 				nread= read(client_fd, filtro_1,100-1); //ler o local
-				filtro_1[nread]='\0';
-				printf("\n O filtro 1 e %s \n", filtro_1);
+				filtro_1[nread]='\0';	
+				printf("\n%s", filtro_1);		
 				
-				
-				FILE *locais;
-				locais=fopen("crime.txt", "r");
+				FILE *locais, *temp;
+				locais=fopen("crimes.txt", "r");
+				temp=fopen("temporario.txt", "w");
 				if (locais==NULL)
 				{
 					printf("\nErro no ficheiro");
 					exit(1);
 				}
-				printf("\nFicheiro existe");
-				
-				for(int i=0; i<20; i++)
+	
+							
+				while(fscanf(locais,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
 				{
-					char data[10];
-					char local[10];
-					char crime[10];
-					char nome[10];
-					char hora[10];
-					fscanf(locais,"%s%s%s%s%s", data, hora, local, crime, nome);
+					if(strcmp(local, filtro_1)==0)
+					{
 						
-					strcpy(crimes[i].data,data);
-					strcpy(crimes[i].hora,hora);
-					strcpy(crimes[i].local,local);
-					strcpy(crimes[i].crime,crime);
-					strcpy(crimes[i].nome,nome);			
+						fprintf(temp, "%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);	
+						printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);			
+					}
 				}
-				fclose(locais);
-								
-				for(int z=0; z<20;z++)
-				{					
-					if(strcmp(crimes[z].local, filtro_1)==0)
-					printf("\n  %s  %s  %s  %s  %s", crimes[z].data, crimes[z].hora, crimes[z].local, crimes[z].crime, crimes[z].nome);				
-				}	
+				fclose(temp);
+				write(client_fd, "1", strlen("1"));
+		
+
+				goto menu_principal;	
 			}
 			
 			if(opcao[0]=='3') //para alterar pass
@@ -611,7 +612,9 @@ void process_client(int client_fd)//psp
 				fclose(pass_psp);
 				fclose(temp);
 				remove("credenciais_psp.txt");
-				rename("temporario.txt", "credenciais_psp.txt");						
+				rename("temporario.txt", "credenciais_psp.txt");
+				
+				goto menu_principal;						
 			}
 			if(opcao[0]=='4')//apagar a conta 
 			{
@@ -658,9 +661,7 @@ void process_client(int client_fd)//psp
 					rename("temporario.txt", "credenciais_psp.txt");
 					
 					printf("\nConta apagada com sucesso");
-					write(client_fd, "1", strlen("1"));
-					
-					
+					write(client_fd, "1", strlen("1"));				
 				}
 			}	
 			
@@ -686,13 +687,9 @@ void process_client__(int client_fd)//gestor
 	User list[20];	
 	char username [BUF_SIZE];
 	char password [BUF_SIZE];
-	char menu_inicial[100];
-	int nread=0;
-
 	
 	User Login()
 	{
-	
 		int nread=0;
 		
 		User lg;
@@ -755,7 +752,6 @@ void process_client__(int client_fd)//gestor
 		
 		nread= read(client_fd, opcao,100-1); //ler o que deseja fazer
 		opcao[nread]='\0';
-		printf("\no opcao e: %s \n", opcao);
 
 		if(opcao[0]=='2')//eliminar contas psp
 		{
@@ -805,13 +801,14 @@ void process_client__(int client_fd)//gestor
 				exit(1);
 			}
 					
-				
 			while(fscanf(pass_psp, "%s %s", logar, pass)!=EOF)
 			{
 				if(strcmp(conta_apagar, logar)!=0)
 				{
 					fprintf(temp,"%s %s\n", logar, pass);
 				}
+				else
+				printf("\nConta aoagada com sucesso");
 			}
 			printf("\nAcao concluida");
 			fclose(pass_psp);
@@ -885,7 +882,7 @@ void process_client__(int client_fd)//gestor
 			rename("temporario.txt", "credenciais_saude.txt");	
 		}
 		
-		if(opcao[0]=='4')//alterar pss
+		if(opcao[0]=='4')//alterar pass
 		{
 			char nova_pass[100];
 			char login[100];
@@ -953,8 +950,7 @@ void process_client__(int client_fd)//gestor
 					printf("\nErro no ficheiro");
 					exit(1);
 				}
-					
-					
+						
 				while(fscanf(pass_saude, "%s %s", logar, pass)!=EOF)
 				{
 					if(strcmp(username, logar)!=0)
@@ -969,9 +965,7 @@ void process_client__(int client_fd)//gestor
 				rename("temporario.txt", "credenciais_gestor.txt");
 				
 				printf("\nConta apagada com sucesso");
-				write(client_fd, "1", strlen("1"));
-				
-					
+				write(client_fd, "1", strlen("1"));	
 			}
 		}
 	}
@@ -981,7 +975,6 @@ void process_client__(int client_fd)//gestor
 		write(client_fd, ("\nGestor nao existente\n"), strlen("\nGestor nao existente\n"));
 		fflush(stdout);
 	}	
-		
 	fclose(ocorrencias);
 	fflush(stdout);
 	close(client_fd);
