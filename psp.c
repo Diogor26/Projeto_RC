@@ -14,6 +14,7 @@
 #define BUF_SIZE 100
 
 void erro(char *msg);
+void emergencia();
 
 int main(int argc, char *argv[]) 
 {
@@ -69,6 +70,8 @@ int main(int argc, char *argv[])
 	  scanf("%s", password_novo);
 	  write(fd, password_novo, strlen(password_novo));
 	  
+	  printf("\nAguarde que o gestor aprove a sua conta");
+	  
 	  goto menu_inicial;
  
   }
@@ -103,6 +106,7 @@ int main(int argc, char *argv[])
 		  
 		  if(aux[0]=='1')//consultar crimes
 		  {
+			  emergencia();
 			  printf("\nOs crimes registados são: ");
 			  nread=read(fd, crime, 5000-1);
 			  crime[nread] = '\0'; 
@@ -168,7 +172,7 @@ int main(int argc, char *argv[])
 			 outra[nread] = '\0'; 
 			 printf("\n%s\n", outra);
 			 scanf("%s", filtro_1);
-		     printf("\nfiltro= %s", filtro_1);
+		     printf("\nfiltro= %s\n", filtro_1);
 		     write(fd, filtro_1, strlen(filtro_1));
 			
 		
@@ -231,8 +235,16 @@ int main(int argc, char *argv[])
 		  }
 		  else
 		  printf("\nOpcao invalida");		
-		  goto menu_principal;  
+		  goto menu_principal; 
+		 
 	   }
+	   if(opcao[0]=='2')
+	   {
+		   system("clear");
+		   printf("\nHA PESSOAS EM PERIGO!!!!!!!!!!!");
+		   goto menu_principal;
+		   
+	   }	   
 	   else
 	   printf("\nUtilizador inválido");
 	   goto menu_inicial;
@@ -252,4 +264,18 @@ void erro(char *msg)
 {
 	printf("Erro: %s\n", msg);
 	exit(-1);
+}
+
+void emergencia()
+{
+	FILE *emergencia;
+	emergencia=fopen("urgencia.txt", "r");
+	
+	if(emergencia!=NULL)
+	{
+		printf("\nALGUEM ESTA EM PERGIO");
+	}
+	
+	 
+	fclose(emergencia);
 }

@@ -23,6 +23,7 @@ int main(){
     char aux[100];
     char menu[100];
     char menu_2[100];
+    char anom[100];
     /*Create UDP socket*/
     clientSocket = socket(PF_INET, SOCK_DGRAM, 0);
     
@@ -90,7 +91,8 @@ int main(){
 			fflush(stdin);
 			nBytes = recvfrom(clientSocket,aux,1,0,NULL, NULL);
 			printf("%c\n", aux[0]);
-				fflush(stdin);
+			fflush(stdin);
+			
 			if(aux[0]=='1')
 			{
 				printf("Login efetuado com sucesso!!\n");
@@ -98,14 +100,15 @@ int main(){
 				printf("\nMenu");
 				printf("\n1->comunicar um crime");
 				printf("\n2->alterar password da conta");
-				printf("\n3->apagar conta");
+				printf("\n3->Botao ALARME");
+				printf("\n4->apagar conta");
 				scanf("%s", menu_2);
 				fflush(stdin);
 				printf("---->%s", menu_2);
 				sendto(clientSocket,menu_2,strlen(menu_2)+1,0,(struct sockaddr *)&serverAddr,addr_size);
 				
 				
-				if(menu_2[0]=='1')//comunicar criem
+				if(menu_2[0]=='1')//comunicar crime
 				{
 					fflush(stdin);
 					
@@ -122,9 +125,27 @@ int main(){
 					
 					printf("\nTipo de Agressao: ");
 					scanf("%s", info.crime);
-								
+					
+					nome:			
 					printf("\nNome: ");
-					scanf("%s", info.nome);
+					printf("\nNota: Se desejar fazer uma denuncia anonima insira '2', caso contrário insira '1'");
+					scanf("%s", anom);
+					
+					if(anom[0]=='1')
+					{
+						printf("Insira o nome");
+						scanf("%s", info.nome);
+					}
+					if(anom[0]=='2')
+					{
+						strcpy(info.nome,"ANONIMO"); 
+					}
+					
+					else
+					{
+						printf("Opcao invalida");
+						goto nome;
+					}
 					
 					snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
 					
@@ -146,8 +167,16 @@ int main(){
 					
 					goto menu_principal;
 				}
-				
-				if(menu_2[0]=='3')//apagar conta 
+				if(menu_2[0]=='3')//pedir socorro
+				{
+					printf("\nVamos enviar um alarme para a PSP em 3, 2, 1\n");
+					
+					sendto(clientSocket,user, strlen(user)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+					printf("\nO alarme esta a ser acionado");
+					
+					goto menu_principal;
+				}
+				if(menu_2[0]=='4')//apagar conta 
 				{
 					char certeza[100];
 					printf("deseja mesmo apagar a conta?");
@@ -165,6 +194,7 @@ int main(){
 					    goto menu_principal;
 					}								
 				}
+				
 				
 				else
 				{				

@@ -59,6 +59,9 @@ int main()
 		    char user_saude[40];
 		    char pass_saude[40];
 		  	char menu_inicial[100];
+		  	char status[100];
+		  	char mensagem[100];
+		  	char nome[100];
 		    FILE * ficheiro;
 		    
 		    int udpSocket, nBytes, nSize;
@@ -241,7 +244,27 @@ int main()
 						goto menu_principal;
 						
 					}
-					if(menu[0]=='3')//apagar conta
+					if(menu[0]=='3')//botao de alarme
+					{
+						char nome_vitima[100];
+						
+						FILE *urgencia;
+					
+						urgencia=fopen("urgencia.txt", "a");
+						//temp=fopen("temporario.txt", "w");
+							
+						if (urgencia==NULL)
+						{
+							printf("\nErro no ficheiro");
+							exit(1);
+						}					
+						
+						nBytes = recvfrom(udpSocket,nome_vitima,strlen(nome_vitima)+1,0,(struct sockaddr *)&serverStorage, &addr_size);	
+						fprintf(urgencia, "%s %s\n", nome_vitima, "perigo");
+										
+						fclose(urgencia);    		
+					}
+					if(menu[0]=='4')//apagar conta
 					{
 						char apagar[100];
 						char logar[100];
@@ -346,6 +369,7 @@ int main()
 					{
 						if (fork() == 0) 
 						{
+							printf("n cliente psp-------------->%d", client);
 							close(fd);
 							process_client(client);
 							exit(0);
@@ -387,6 +411,7 @@ int main()
 					{
 						if (fork() == 0) 
 						{
+							printf("n cliente saude-------------->%d", client);
 							close(fd);
 							process_client__(client);
 							exit(0);
@@ -505,22 +530,27 @@ void process_client(int client_fd)//psp
 				
 		if(exist(u)==1) //a credêncial e valida
 		{
-			char aux[100]={"1"};
+			printf("\nUtilizador válido!\n");
+			
+			FILE *botao_alarme;
+			botao_alarme=fopen("urgencia.txt", "r");
+			
 			char opcao[100];
-
 			int nread=0;
 			
-			printf("\nUtilizador válido!\n");
-			printf("\nO nuimero enviasdo foi %s", aux);
-			write(client_fd, aux, strlen(aux));
-			
-			menu_principal:
-			nread= read(client_fd, opcao,100-1); //ler o que deseja fazer
-			opcao[nread]='\0';
-			printf("\no opcao e: %s \n", opcao);
-			
-			if(opcao[0]=='1') //quando o psp quer ler crimes
+			//printf("\nO nuimero enviasdo foi %s", aux);
+				
+			if(botao_alarme==NULL)
 			{
+				write(client_fd, "1", strlen("1"));				
+				
+				menu_principal:
+				nread= read(client_fd, opcao,100-1); //ler o que deseja fazer
+				opcao[nread]='\0';
+				printf("\no opcao e: %s \n", opcao);
+				
+				if(opcao[0]=='1') //quando o psp quer ler crimes
+				{
 				printf("\nQuero ler os crimes");
 				FILE *ficheiro;
 				ficheiro=fopen("crimes.txt", "r");
@@ -551,143 +581,100 @@ void process_client(int client_fd)//psp
 				goto menu_principal;
 			}
 			
-			if(opcao[0]=='2')//procurar crimes por local
-			{
-				char filtro_1[100];
-				
-				char data[100];
-				char hora[100];
-				char local[100];
-				char crime[100];
-				char nome[100];
-				char *mensagem="Insira o local para aplicar o filtro";
-				write(client_fd, mensagem,strlen(mensagem));
+				if(opcao[0]=='2')//procurar crimes por local
+				{
+					char filtro_1[100];
+					
+					char data[100];
+					char hora[100];
+					char local[100];
+					char crime[100];
+					char nome[100];
+					char *mensagem="Insira o local para aplicar o filtro";
+					write(client_fd, mensagem,strlen(mensagem));
 
-				printf("Vamos ler o local: \n");
-				nread= read(client_fd, filtro_1,100-1); //ler o local
-				filtro_1[nread]='\0';	
-				printf("\n%s", filtro_1);		
-				
-				FILE *locais, *temp;
-				locais=fopen("crimes.txt", "r");
-				temp=fopen("temporario.txt", "w");
-				if (locais==NULL)
-				{
-					printf("\nErro no ficheiro");
-					exit(1);
-				}
-			
-				while(fscanf(locais,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
-				{
-					if(strcmp(local, filtro_1)==0)
+					printf("Vamos ler o local: \n");
+					nread= read(client_fd, filtro_1,100-1); //ler o local
+					filtro_1[nread]='\0';	
+					printf("\n%s", filtro_1);		
+					
+					FILE *locais, *temp;
+					locais=fopen("crimes.txt", "r");
+					temp=fopen("temporario.txt", "w");
+					if (locais==NULL)
 					{
-						
-						fprintf(temp, "%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);	
-						printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);			
+						printf("\nErro no ficheiro");
+						exit(1);
 					}
-				}
-				fclose(temp);
-				write(client_fd, "1", strlen("1"));
-		
-
-				goto menu_principal;	
-			}
-			
-			if(opcao[0]=='3')//procurar crimes por data
-			{
-				char filtro_1[100];
 				
-				char data[100];
-				char hora[100];
-				char local[100];
-				char crime[100];
-				char nome[100];
-				char *mensagem="Insira o hora no formato dd/mm/aaaa para aplicar o filtro";
-				write(client_fd, mensagem,strlen(mensagem));
-
-				printf("Vamos ler a hora: \n");
-				nread= read(client_fd, filtro_1,100-1); //ler a hora
-				filtro_1[nread]='\0';	
-				printf("\n%s", filtro_1);		
-				
-				FILE *locais, *temp;
-				locais=fopen("crimes.txt", "r");
-				temp=fopen("temporario.txt", "w");
-				
-				if (locais==NULL)
-				{
-					printf("\nErro no ficheiro");
-					exit(1);
-				}
+					while(fscanf(locais,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
+					{
+						if(strcmp(local, filtro_1)==0)
+						{
 							
-				while(fscanf(locais,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
-				{
-					if(strcmp(data, filtro_1)==0)
-					{
-						fprintf(temp, "%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);	
-						printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);			
+							fprintf(temp, "%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);	
+							printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);			
+						}
 					}
-				}
-				fclose(temp);
-				write(client_fd, "1", strlen("1"));
-	
-				goto menu_principal;	
-			}
+					fclose(temp);
+					write(client_fd, "1", strlen("1"));
 			
-			if(opcao[0]=='4') //para alterar pass
-			{
-				char nova_pass[100];
-				char login[100];
-				char pass[100];
-				
-				write(client_fd, "Qual a nova password?", strlen("Qual a nova password?"));
-				nread= read(client_fd, nova_pass,100-1); //ler o local
-				nova_pass[nread]='\0';
-				printf("\n-------------------->%s", nova_pass);
-				
-				FILE *pass_psp, *temp;
-				
-				pass_psp=fopen("credenciais_psp.txt", "r");
-				temp=fopen("temporario.txt", "w");
-				
-				if (pass_psp==NULL)
-				{
-					printf("\nErro no ficheiro");
-					exit(1);
-				}
 
-				while(fscanf(pass_psp, "%s %s", login, pass)!=EOF)
-				{
-					if(strcmp(username, login)!=0)
-					{
-						fprintf(temp,"%s %s\n", login, pass);
-					}
-					else
-					{
-						fprintf(temp,"%s %s\n", login, nova_pass);
-					}		
+					goto menu_principal;	
 				}
 				
-				fclose(pass_psp);
-				fclose(temp);
-				remove("credenciais_psp.txt");
-				rename("temporario.txt", "credenciais_psp.txt");
-				
-				goto menu_principal;						
-			}
-			if(opcao[0]=='5')//apagar a conta 
-			{
-				char logar[100];
-				char pass[100];
-				char choose[100];
-				write(client_fd, "\nDeseja mesmo eleminar a conta?", strlen("\nDeseja mesmo eleminar a conta?"));
-				
-				nread= read(client_fd, choose,100-1); //ler o local
-				choose[nread]='\0';
-				printf("\n-------------------->%s", choose);
-				
-				if(choose[0]=='1')//quer msm apagar a conta
+				if(opcao[0]=='3')//procurar crimes por data
 				{
+					char filtro_1[100];
+					
+					char data[100];
+					char hora[100];
+					char local[100];
+					char crime[100];
+					char nome[100];
+					char *mensagem="Insira o hora no formato dd/mm/aaaa para aplicar o filtro";
+					write(client_fd, mensagem,strlen(mensagem));
+
+					printf("Vamos ler a hora: \n");
+					nread= read(client_fd, filtro_1,100-1); //ler a hora
+					filtro_1[nread]='\0';	
+					printf("\n%s", filtro_1);		
+					
+					FILE *locais, *temp;
+					locais=fopen("crimes.txt", "r");
+					temp=fopen("temporario.txt", "w");
+					
+					if (locais==NULL)
+					{
+						printf("\nErro no ficheiro");
+						exit(1);
+					}
+								
+					while(fscanf(locais,"%s %s %s %s %s", data, hora, local, crime, nome)!=EOF)
+					{
+						if(strcmp(data, filtro_1)==0)
+						{
+							fprintf(temp, "%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);	
+							printf("%s  %s  %s  %s  %s\n", data, hora,local, crime, nome);			
+						}
+					}
+					fclose(temp);
+					write(client_fd, "1", strlen("1"));
+		
+					goto menu_principal;	
+				}
+				
+				if(opcao[0]=='4') //para alterar pass
+				{
+					char nova_pass[100];
+					char login[100];
+					char pass[100];
+					
+					write(client_fd, "Qual a nova password?", strlen("Qual a nova password?"));
+					nread= read(client_fd, nova_pass,100-1); //ler o local
+					nova_pass[nread]='\0';
+					printf("\n-------------------->%s", nova_pass);
+					
 					FILE *pass_psp, *temp;
 					
 					pass_psp=fopen("credenciais_psp.txt", "r");
@@ -698,43 +685,95 @@ void process_client(int client_fd)//psp
 						printf("\nErro no ficheiro");
 						exit(1);
 					}
-					
-					if (temp==NULL)
+
+					while(fscanf(pass_psp, "%s %s", login, pass)!=EOF)
 					{
-						printf("\nErro no ficheiro");
-						exit(1);
-					}
-					
-					
-					while(fscanf(pass_psp, "%s %s", logar, pass)!=EOF)
-					{
-						if(strcmp(username, logar)!=0)
+						if(strcmp(username, login)!=0)
 						{
-							fprintf(temp,"%s %s\n", logar, pass);
+							fprintf(temp,"%s %s\n", login, pass);
 						}
-						printf("\napaguei a conta");
+						else
+						{
+							fprintf(temp,"%s %s\n", login, nova_pass);
+						}		
 					}
+					
 					fclose(pass_psp);
 					fclose(temp);
 					remove("credenciais_psp.txt");
 					rename("temporario.txt", "credenciais_psp.txt");
 					
-					printf("\nConta apagada com sucesso");
-					write(client_fd, "1", strlen("1"));	
-								
+					goto menu_principal;						
 				}
-			}	
+				if(opcao[0]=='5')//apagar a conta 
+				{
+					char logar[100];
+					char pass[100];
+					char choose[100];
+					write(client_fd, "\nDeseja mesmo eleminar a conta?", strlen("\nDeseja mesmo eleminar a conta?"));
+					
+					nread= read(client_fd, choose,100-1); //ler o local
+					choose[nread]='\0';
+					printf("\n-------------------->%s", choose);
+					
+					if(choose[0]=='1')//quer msm apagar a conta
+					{
+						FILE *pass_psp, *temp;
+						
+						pass_psp=fopen("credenciais_psp.txt", "r");
+						temp=fopen("temporario.txt", "w");
+						
+						if (pass_psp==NULL)
+						{
+							printf("\nErro no ficheiro");
+							exit(1);
+						}
+						
+						if (temp==NULL)
+						{
+							printf("\nErro no ficheiro");
+							exit(1);
+						}
+						
+						
+						while(fscanf(pass_psp, "%s %s", logar, pass)!=EOF)
+						{
+							if(strcmp(username, logar)!=0)
+							{
+								fprintf(temp,"%s %s\n", logar, pass);
+							}
+							printf("\napaguei a conta");
+						}
+						fclose(pass_psp);
+						fclose(temp);
+						remove("credenciais_psp.txt");
+						rename("temporario.txt", "credenciais_psp.txt");
+						
+						printf("\nConta apagada com sucesso");
+						write(client_fd, "1", strlen("1"));	
+									
+					}
+				}	
+				
 			
+				else
+				{
+					printf("\nOpcao invalida");
+					goto menu_principal;
+				}
+			}
 			else
-			{
-				printf("\nOpcao invalida");
+			{				
+				system("clear");
+				write(client_fd, "2", strlen("2"));
+				printf("\nHA GENTE EM PERIGO!!!!!");
 				goto menu_principal;
 			}
 		}
 		
 		else //informar psp que nao e utilizador valido
 		{
-			write(client_fd, "2", strlen("2"));
+			write(client_fd, "3", strlen("3"));
 			printf("\nUtilizador nao existente\n");
 			fflush(stdout);
 			
@@ -968,12 +1007,12 @@ void process_client__(int client_fd)//gestor
 			
 			if(opcao[0]=='4')//alterar pass
 			{
-				char nova_pass[100];
+				char nova_pass[100]= " ";
 				char login[100];
 				char pass[100];
 				
 				write(client_fd, "Qual a nova password?", strlen("Qual a nova password?"));
-				nread= read(client_fd, nova_pass,100-1); //ler o local
+				nread= read(client_fd, nova_pass,100-1); //ler a pass nova
 				nova_pass[nread]='\0';
 				printf("\n-------------------->%s", nova_pass);
 					
