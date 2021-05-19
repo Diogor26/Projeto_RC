@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
 		  printf("\n3->Consultar crimes por data");
 		  printf("\n4->alterar password da conta");
 		  printf("\n5->apagar conta");
+		  printf("\n6->sistema de ajuda help");
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
@@ -232,6 +233,12 @@ int main(int argc, char *argv[])
 			  }
 			  else
 			  goto menu_principal;		  
+		  }
+		  if(aux[0]=='6')
+		  {
+			  printf("\nFazer o sistema de ajuda");
+			  
+			  
 		  }
 		  else
 		  printf("\nOpcao invalida");		

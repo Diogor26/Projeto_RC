@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 
+
 struct infomarcao{
     char data[40];
     char local[40];
@@ -24,6 +25,7 @@ int main(){
     char menu[100];
     char menu_2[100];
     char anom[100];
+    int hours, minutes, day, month, year;
     /*Create UDP socket*/
     clientSocket = socket(PF_INET, SOCK_DGRAM, 0);
     
@@ -102,6 +104,7 @@ int main(){
 				printf("\n2->alterar password da conta");
 				printf("\n3->Botao ALARME");
 				printf("\n4->apagar conta");
+				printf("\n5->Help");
 				scanf("%s", menu_2);
 				fflush(stdin);
 				printf("---->%s", menu_2);
@@ -111,14 +114,32 @@ int main(){
 				if(menu_2[0]=='1')//comunicar crime
 				{
 					fflush(stdin);
+					time_t now;
+					time(&now);
+					struct tm *local=localtime(&now);
+					
+					hours=local->tm_hour;
+					minutes= local->tm_min;
+					
+					day=local->tm_mday;
+					month= local->tm_mon +1;
+					year=local->tm_year +1900;
+					
+					/*if(hours>12)
+					{
+						hours-=12;
+					}*/
 					
 					printf("Queixa a presentar:\n");
 					
-					printf("Data: ");
+					/*printf("Data: ");
 					scanf("%s", info.data);
 					
 					printf("\nHora: ");
 					scanf("%s", info.hora);
+					*/
+					snprintf(info.hora, sizeof(info.hora), "%d:%d", hours, minutes);
+					snprintf(info.data, sizeof(info.data), "%02d/%02d/%d",day, month, year);
 					
 					printf("\nLocal: ");
 					scanf("%s", info.local);				
@@ -135,10 +156,28 @@ int main(){
 					{
 						printf("Insira o nome");
 						scanf("%s", info.nome);
+						
+						snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
+					
+						nBytes = strlen(buffer) + 1;
+					
+						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
+						printf("Obrigado pela sua colaboracao!"); 
+						
+						goto menu_principal;
 					}
 					if(anom[0]=='2')
 					{
 						strcpy(info.nome,"ANONIMO"); 
+						
+						snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
+					
+						nBytes = strlen(buffer) + 1;
+					
+						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
+						printf("Obrigado pela sua colaboracao!"); 
+						
+						goto menu_principal;
 					}
 					
 					else
@@ -147,14 +186,6 @@ int main(){
 						goto nome;
 					}
 					
-					snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
-					
-					nBytes = strlen(buffer) + 1;
-					
-					sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
-					printf("Obrigado pela sua colaboracao!"); 
-					
-					goto menu_principal;
 				}
 				if(menu_2[0]=='2')//alterar pass da conta
 				{
@@ -194,7 +225,36 @@ int main(){
 					    goto menu_principal;
 					}								
 				}
-				
+				if(menu_2[0]=='5')//sistema de ajuda
+				{
+					char ajuda[100];
+					menu_ajuda:
+					printf("\n1-> Como comunicar um crime?");
+					printf("\n2->Objetivo da aplicação?");
+					printf("\n3->Como funciona o sistema de alarme?");
+					scanf("%s", ajuda);
+					
+					if(ajuda[0]=='1')
+					{
+						printf("\nPara comunicar um crime será necessário colocar a data, hora, local o tipo de agressão e o Nome ");
+						goto menu_principal;
+					}
+					if(ajuda[0]=='2')
+					{
+						printf("\nEsta aplicação tem como objetivo a proteção dos profissionais de saude que se sintam ameaçados em ambiente profissonal");
+						goto menu_principal;
+					}
+					if(ajuda[0]=='3')
+					{
+						printf("\nQuando prime o sistema de alarme, é enviado instantaneamente um alarme para um profissional de agente de segurança, que irá aparecer o mais breve possível");
+						goto menu_principal;
+					}
+					else
+					{
+						printf("Opcao invalida");
+						goto menu_ajuda;
+					}
+				}
 				
 				else
 				{				
