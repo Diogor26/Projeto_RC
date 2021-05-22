@@ -14,7 +14,7 @@
 #define BUF_SIZE 100
 
 void erro(char *msg);
-void emergencia();
+int emergencia();
 
 int main(int argc, char *argv[]) 
 {
@@ -92,9 +92,14 @@ int main(int argc, char *argv[])
 		
 	  if(opcao[0]=='1') //utilizador validado
 	  {	  
+
 		  printf("\nUtlizador Válido");
+		  int urgencia_=0;
 		  
 		  menu_principal:
+		  
+		  urgencia_=emergencia();
+		  printf("------------->%d", urgencia_);
 		  printf("\nMenu");
 		  printf("\n1->consultar crimes ocorridos");
 		  printf("\n2->Consultar crimes por local");
@@ -102,6 +107,11 @@ int main(int argc, char *argv[])
 		  printf("\n4->alterar password da conta");
 		  printf("\n5->apagar conta");
 		  printf("\n6->sistema de ajuda help");
+		  printf("\n7->Profissional de saude em perigo");
+		  if(urgencia_==1)
+		  {
+			  printf("\nProfissional em perigo!!!!\nConsulte o ponto 7 do menu");
+		  }
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
@@ -206,8 +216,7 @@ int main(int argc, char *argv[])
 			  write(fd, mudar_pass, strlen(mudar_pass));
 			  
 			  goto menu_principal;
-		  }
-		  
+		  }		  
 		  if(aux[0]=='5')//apagar conta
 		  {
 			  char op[100];
@@ -234,11 +243,69 @@ int main(int argc, char *argv[])
 			  else
 			  goto menu_principal;		  
 		  }
-		  if(aux[0]=='6')
+		  if(aux[0]=='6')//sistema de ajuda
 		  {
-			  printf("\nFazer o sistema de ajuda");
-			  
-			  
+			  char ajuda[100];
+			  menu_ajuda:
+			  printf("\n1-> Como consultar um crime?");
+			  printf("\n2->Objetivo da aplicação?");
+			  printf("\n3->Como prestar auxilio a um profissinal de saude?");
+			  scanf("%s", ajuda);
+			  write(fd, ajuda, strlen(ajuda));
+
+			  if(ajuda[0]=='1' || ajuda[0]=='2' || ajuda[0]=='3')
+			  {
+				  char mensagem[100];
+				  nread=read(fd, mensagem, 1000-1);
+	  			  mensagem[nread] = '\0';
+
+				  printf("\n%s", mensagem);
+			  }
+			  else
+			  {
+				  printf("Opcao invalida");
+			  }
+		  }
+		  if(aux[0]=='7')//prestar auxilio profissional de saude
+		  {
+			  char salvar[100];
+			  system("clear");
+			  char urgencia[100];
+			  printf("\nPrestar auxilio ao profissional de saude");
+
+			  FILE *consultar, *temp, *consultar_2;
+					
+			  consultar=fopen("urgencia.txt", "r");
+			  consultar_2=fopen("urgencia.txt", "r");
+			  temp=fopen("temporario_2.txt", "w");
+					
+			  if (consultar==NULL)
+			  {
+				printf("\nErro no ficheiro");
+				exit(1);
+			  }
+
+					while(fgets(urgencia,sizeof(urgencia), consultar)!=NULL)
+			 		{
+					  printf("\n%s", urgencia);
+			 		}
+					 printf("\nInsira o nome de quem quer socorrer");
+					 scanf("%s", salvar);
+					
+					while(fscanf(consultar, "%s", urgencia)!=EOF)
+					{
+						if(strcmp(urgencia, salvar)!=0)
+						{
+							fprintf(temp,"%s\n", urgencia);
+						}	
+					}
+					
+					fclose(consultar);
+					fclose(temp);
+					remove("urgencia.txt");
+					rename("temporario_2.txt", "urgencia.txt");
+
+			  goto menu_principal;
 		  }
 		  else
 		  printf("\nOpcao invalida");		
@@ -273,16 +340,20 @@ void erro(char *msg)
 	exit(-1);
 }
 
-void emergencia()
+int emergencia()
 {
+	char opcao[100];
+	char urgente[100];
 	FILE *emergencia;
 	emergencia=fopen("urgencia.txt", "r");
 	
-	if(emergencia!=NULL)
-	{
-		printf("\nALGUEM ESTA EM PERGIO");
-	}
-	
-	 
+	while(fscanf(emergencia, "%s", urgente)!=EOF)
+
+	if(urgente=='\0')
+	return 0;
+
+	else
+	return 1;
+
 	fclose(emergencia);
 }

@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 		  printf("\n3->Eliminar contas saude");
 		  printf("\n4->Alterar palavra pass");
 		  printf("\n5->Eliminar conta pessoal");
+		  printf("\n6-Sistema de ajuda");
 		  scanf("%s", aux);
 		  write(fd, aux, strlen(aux));
 		  
@@ -234,6 +235,30 @@ int main(int argc, char *argv[])
 				  exit(1);
 			  }	
 			  goto menu_inicial;
+		  }
+
+		  if(aux[0]=='6')//sistema de ajuda
+		  {
+			  char ajuda[100];
+			  menu_ajuda:
+			  printf("\n1-> Como gerir as contas de saude e psp?");
+			  printf("\n2->Objetivo da aplicação?");
+			  printf("\n3->Como gerir a conta pessoal?");
+			  scanf("%s", ajuda);
+			  write(fd, ajuda, strlen(ajuda));
+
+			  if(ajuda[0]=='1' || ajuda[0]=='2' || ajuda[0]=='3')
+			  {
+				  char mensagem[100];
+				  nread=read(fd, mensagem, 1000-1);
+	  			  mensagem[nread] = '\0';
+
+				  printf("\n%s", mensagem);
+			  }
+			  else
+			  {
+				  printf("Opcao invalida");
+			  }
 		  }
 		  else
 		  {

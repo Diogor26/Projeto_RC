@@ -532,16 +532,13 @@ void process_client(int client_fd)//psp
 		{
 			printf("\nUtilizador válido!\n");
 			
-			FILE *botao_alarme;
-			botao_alarme=fopen("urgencia.txt", "r");
+
 			
 			char opcao[100];
 			int nread=0;
 			
 			//printf("\nO nuimero enviasdo foi %s", aux);
 				
-			if(botao_alarme==NULL)
-			{
 				write(client_fd, "1", strlen("1"));				
 				
 				menu_principal:
@@ -754,7 +751,39 @@ void process_client(int client_fd)//psp
 									
 					}
 				}	
-				
+				if(opcao[0]=='6')
+				{
+					char pergunta[100];
+					char* resposta1="\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3";
+					char* resposta2="\nEsta aplicação tem como objetivo ajudar os profissioais de saude de ataques pessoais no trabalho";
+					char* resposta3="\nSempre que houver profissinais de saude em perigo, irá receber uma mensagemno menu principal. Para consultar mais detalhes carregue no ponto 7 do menu principal";
+					nread= read(client_fd, pergunta,100-1); //ler o que deseja fazer
+					pergunta[nread]='\0';
+					printf("%s", pergunta);
+
+					if(pergunta[0]=='1')//como consultar um crime
+					{
+						printf("entrei aqui");
+						write(client_fd, "\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3", sizeof("\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3"));
+							printf("ja enviei");
+					}
+					
+					if(pergunta[0]=='2')
+					{
+						write(client_fd, resposta2, sizeof(resposta2));
+
+					}
+					if(pergunta[0]=='3')
+					{
+						write(client_fd, resposta3, sizeof(resposta3));
+
+					}
+					else
+					{
+						printf("\nOpcao invalida");
+
+					}
+				}
 			
 				else
 				{
@@ -762,14 +791,8 @@ void process_client(int client_fd)//psp
 					goto menu_principal;
 				}
 			}
-			else
-			{				
-				system("clear");
-				write(client_fd, "2", strlen("2"));
-				printf("\nHA GENTE EM PERIGO!!!!!");
-				goto menu_principal;
-			}
-		}
+
+		
 		
 		else //informar psp que nao e utilizador valido
 		{
@@ -1093,6 +1116,37 @@ void process_client__(int client_fd)//gestor
 					write(client_fd, "1", strlen("1"));
 					
 					goto menu_principal;	
+				}
+
+			}
+			if(opcao[0]=='6')
+			{
+				char pergunta[100];
+				char* resposta1="\nPara gerir as contas de saude e psp, tem as opcoes do 3 e 4 do menu, onde pode apagar as contas introduzindo o nome da conta para apagar";
+				char* resposta2="\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's";
+				char* resposta3="\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass";
+				nread= read(client_fd, pergunta,100-1); //ler o que deseja fazer
+				pergunta[nread]='\0';
+				printf("%s", pergunta);
+
+				if(pergunta[0]=='1')//como consultar um crime
+				{
+					printf("entrei aqui");
+					write(client_fd, "\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3", sizeof("\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3"));
+					printf("ja enviei");
+				}
+					
+				if(pergunta[0]=='2')
+				{
+					write(client_fd, "\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's", sizeof("\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's"));
+				}
+				if(pergunta[0]=='3')
+				{
+					write(client_fd, "\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass", sizeof("\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass"));
+				}
+				else
+				{
+					printf("\nOpcao invalida");
 				}
 			}
 			else
