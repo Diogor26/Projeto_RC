@@ -1,4 +1,3 @@
-
 #include <string.h>
 #include <stdio.h>
 
@@ -187,8 +186,8 @@ int main()
 					nBytes = recvfrom(udpSocket,menu,strlen(menu)+1,0,(struct sockaddr *)&serverStorage, &addr_size);
 					printf("a char opcao e :--------------->%s---", menu);
 					
-					if(menu[0]=='1')
-					{											//Recebe queixa
+					if(menu[0]=='1')//Recebe queixa
+					{											
 						nBytes = recvfrom(udpSocket,buffer,1024,0,(struct sockaddr *)&serverStorage, &addr_size);
 						printf("\n Submissao de crime: \n%s\n", buffer);
 						ficheiro=fopen("crimes.txt", "a");
@@ -225,7 +224,7 @@ int main()
 							exit(1);
 						}
 
-						
+	
 						while(fscanf(pass_saude, "%s %s", login, pass)!=EOF)
 						{
 							if(strcmp(user_saude, login)!=0)
@@ -309,6 +308,40 @@ int main()
 							goto menu_inicial;
 						}
 					}
+					if(menu[0]=='5')//sistema de ajuda
+					{
+						menu_ajuda:
+						printf("\nEstou no menu ajuda");
+						char pergunta[100];
+						char* resposta1="\nPara comunicar um crime será necessário colocar a data, hora, local o tipo de agressão e o Nome ";
+						char* resposta2="\nEsta aplicação tem como objetivo a proteção dos profissionais de saude que se sintam ameaçados em ambiente profissonal";
+						char* resposta3="\nQuando prime o sistema de alarme, é enviado instantaneamente um alarme para um profissional de agente de segurança, que irá aparecer o mais breve possível";
+						nBytes = recvfrom(udpSocket,pergunta,strlen(pergunta)+1,0,(struct sockaddr *)&serverStorage, &addr_size); //ler o que deseja fazer
+						printf("%s", pergunta);
+
+						if(pergunta[0]=='1')
+						{
+							sendto(udpSocket,resposta1,strlen(resposta1)+1,0,(struct sockaddr *)&serverStorage,addr_size);
+							goto menu_principal;
+						}
+							
+						if(pergunta[0]=='2')
+						{
+							sendto(udpSocket,resposta2,strlen(resposta2)+1,0,(struct sockaddr *)&serverStorage,addr_size);
+							goto menu_principal;
+						}
+						if(pergunta[0]=='3')
+						{
+							sendto(udpSocket,resposta3,strlen(resposta3)+1,0,(struct sockaddr *)&serverStorage,addr_size);
+							goto menu_principal;
+						}
+						else
+						{
+							printf("\nOpcao invalida");
+							sendto(udpSocket,"erro",strlen("erro")+1,0,(struct sockaddr *)&serverStorage,addr_size);
+							goto menu_ajuda;
+						}
+					}
 					else
 					{
 						printf("\nOpcao invalida");
@@ -329,8 +362,7 @@ int main()
 				printf("\nNao existe\n");
 				fflush(stdout);
 				goto menu_inicial;
-			}	
-			
+			}				
 		return 0;
         }//fim do servidor UDP
         
@@ -531,9 +563,7 @@ void process_client(int client_fd)//psp
 		if(exist(u)==1) //a credêncial e valida
 		{
 			printf("\nUtilizador válido!\n");
-			
-
-			
+						
 			char opcao[100];
 			int nread=0;
 			
@@ -548,35 +578,35 @@ void process_client(int client_fd)//psp
 				
 				if(opcao[0]=='1') //quando o psp quer ler crimes
 				{
-				printf("\nQuero ler os crimes");
-				FILE *ficheiro;
-				ficheiro=fopen("crimes.txt", "r");
-						
-				if(ficheiro==NULL)
-				{
-					printf("\nErro ao abrir ficheiro");
-					exit(1);
-				}
-				
-				char leitura [5000]= " "; //deixar aqui senao fica com lixo
-				char crimes[5000]=" ";
-				
-				while(fgets(crimes,sizeof(crimes), ficheiro)!=NULL)
-				{
-					strcat(leitura, crimes);
-					fflush(stdin);
-				}
-				fclose(ficheiro);
-				
-				printf("Vou enviar os crimes\n");
-				printf("\n%s", leitura);
-						
-				write(client_fd, leitura ,strlen(leitura));//envia os crimes para o o psp
+					printf("\nQuero ler os crimes");
+					FILE *ficheiro;
+					ficheiro=fopen("crimes.txt", "r");
+							
+					if(ficheiro==NULL)
+					{
+						printf("\nErro ao abrir ficheiro");
+						exit(1);
+					}
+					
+					char leitura [5000]= " "; //deixar aqui senao fica com lixo
+					char crimes[5000]=" ";
+					
+					while(fgets(crimes,sizeof(crimes), ficheiro)!=NULL)
+					{
+						strcat(leitura, crimes);
+						fflush(stdin);
+					}
+					fclose(ficheiro);
+					
+					printf("Vou enviar os crimes\n");
+					printf("\n%s", leitura);
+							
+					write(client_fd, leitura ,strlen(leitura));//envia os crimes para o o psp
 
-				fflush(stdout);
-				
-				goto menu_principal;
-			}
+					fflush(stdout);
+					
+					goto menu_principal;
+				}
 			
 				if(opcao[0]=='2')//procurar crimes por local
 				{
@@ -753,34 +783,39 @@ void process_client(int client_fd)//psp
 				}	
 				if(opcao[0]=='6')
 				{
+					
+					char resposta1[9000]="\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3";
+					char resposta2[9000]="\nEsta aplicação tem como objetivo ajudar os profissioais de saude de ataques pessoais no trabalho";
+					char resposta3[9000]="\nSempre que houver profissinais de saude em perigo, irá receber uma mensagemno menu principal. Para consultar mais detalhes carregue no ponto 7 do menu principal";
 					char pergunta[100];
-					char* resposta1="\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3";
-					char* resposta2="\nEsta aplicação tem como objetivo ajudar os profissioais de saude de ataques pessoais no trabalho";
-					char* resposta3="\nSempre que houver profissinais de saude em perigo, irá receber uma mensagemno menu principal. Para consultar mais detalhes carregue no ponto 7 do menu principal";
+					
+					menu_ajuda:
 					nread= read(client_fd, pergunta,100-1); //ler o que deseja fazer
 					pergunta[nread]='\0';
 					printf("%s", pergunta);
 
 					if(pergunta[0]=='1')//como consultar um crime
 					{
-						printf("entrei aqui");
-						write(client_fd, "\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3", sizeof("\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3"));
-							printf("ja enviei");
+						write(client_fd,resposta1, sizeof(resposta1));
+						goto menu_principal;
 					}
 					
 					if(pergunta[0]=='2')
 					{
-						write(client_fd, resposta2, sizeof(resposta2));
+						write(client_fd,resposta2,sizeof(resposta2));
+						goto menu_principal;
 
 					}
 					if(pergunta[0]=='3')
 					{
 						write(client_fd, resposta3, sizeof(resposta3));
+						goto menu_principal;
 
 					}
 					else
 					{
 						printf("\nOpcao invalida");
+						goto menu_ajuda;
 
 					}
 				}
@@ -796,7 +831,7 @@ void process_client(int client_fd)//psp
 		
 		else //informar psp que nao e utilizador valido
 		{
-			write(client_fd, "3", strlen("3"));
+			write(client_fd, "2", strlen("2"));
 			printf("\nUtilizador nao existente\n");
 			fflush(stdout);
 			
@@ -1125,28 +1160,31 @@ void process_client__(int client_fd)//gestor
 				char* resposta1="\nPara gerir as contas de saude e psp, tem as opcoes do 3 e 4 do menu, onde pode apagar as contas introduzindo o nome da conta para apagar";
 				char* resposta2="\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's";
 				char* resposta3="\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass";
+				menu_ajuda:
 				nread= read(client_fd, pergunta,100-1); //ler o que deseja fazer
 				pergunta[nread]='\0';
 				printf("%s", pergunta);
 
 				if(pergunta[0]=='1')//como consultar um crime
 				{
-					printf("entrei aqui");
 					write(client_fd, "\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3", sizeof("\nPara consultar um crime, no meu principal cosulte o ponto 1, sendo possível consultar por filtros nos pontos 2 e 3"));
-					printf("ja enviei");
+					goto menu_principal;
 				}
 					
 				if(pergunta[0]=='2')
 				{
 					write(client_fd, "\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's", sizeof("\nEsta aplicação serve para gerir tanto as contas dos profissionais de saude, bem como as contas dos PSP's"));
+					goto menu_principal;
 				}
 				if(pergunta[0]=='3')
 				{
 					write(client_fd, "\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass", sizeof("\nPara gerir a conta pessoal, tem as opcoes 4 e 5 do menu principal, onde pode eliminar a conta bem como alterar a palavra pass"));
+					goto menu_principal;
 				}
 				else
 				{
 					printf("\nOpcao invalida");
+					goto menu_ajuda;
 				}
 			}
 			else

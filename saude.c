@@ -14,7 +14,8 @@ struct infomarcao{
     char hora[10];
 }info;
 
-int main(){
+int main()
+{
     int clientSocket, nBytes;
     char buffer[1024];
     struct sockaddr_in serverAddr;
@@ -40,10 +41,10 @@ int main(){
     
     
     while(1)
-    {
-		
-		printf("\nBem vindo\n App para profissionais de saude!!");
+    {	
 		menu_inicial:
+		system("clear");	
+		printf("\nBem vindo\n App para profissionais de saude!!");
 		printf("\nMenu\n");
 		printf("\n1-Criar conta");
 		printf("\n2-Login\n");
@@ -84,7 +85,7 @@ int main(){
 			printf("\nInsira a pass: ");
 			scanf("%s", pass);
 			
-			printf("\n%s\n", pass);
+			printf("\n%s", pass);
 			
 			nBytes=strlen(pass)+1;
 			sendto(clientSocket,pass,nBytes,0,(struct sockaddr *)&serverAddr,addr_size);			
@@ -97,8 +98,10 @@ int main(){
 			
 			if(aux[0]=='1')
 			{
-				printf("Login efetuado com sucesso!!\n");
+				system("clear");
+				printf("\nLogin efetuado com sucesso!!\n");
 				menu_principal:
+				system("clear");
 				printf("\nMenu");
 				printf("\n1->comunicar um crime");
 				printf("\n2->alterar password da conta");
@@ -107,12 +110,13 @@ int main(){
 				printf("\n5->Help");
 				scanf("%s", menu_2);
 				fflush(stdin);
-				printf("---->%s", menu_2);
+				//printf("---->%s", menu_2);
 				sendto(clientSocket,menu_2,strlen(menu_2)+1,0,(struct sockaddr *)&serverAddr,addr_size);
-				
 				
 				if(menu_2[0]=='1')//comunicar crime
 				{
+					system("clear");
+					printf("\nComunicar um crime");
 					fflush(stdin);
 					time_t now;
 					time(&now);
@@ -124,20 +128,9 @@ int main(){
 					day=local->tm_mday;
 					month= local->tm_mon +1;
 					year=local->tm_year +1900;
-					
-					/*if(hours>12)
-					{
-						hours-=12;
-					}*/
-					
-					printf("Queixa a presentar:\n");
-					
-					/*printf("Data: ");
-					scanf("%s", info.data);
-					
-					printf("\nHora: ");
-					scanf("%s", info.hora);
-					*/
+
+					printf("\nQueixa a presentar:\n");
+
 					snprintf(info.hora, sizeof(info.hora), "%d:%d", hours, minutes);
 					snprintf(info.data, sizeof(info.data), "%02d/%02d/%d",day, month, year);
 					
@@ -154,18 +147,19 @@ int main(){
 					
 					if(anom[0]=='1')
 					{
-						printf("Insira o nome");
-						scanf("%s", info.nome);
+						printf("\nInsira o nome: ");
+						scanf("\n%s", info.nome);
 						
 						snprintf(buffer, sizeof(buffer),"%s %s %s %s %s", info.data, info.hora, info.local, info.crime, info.nome);
 					
 						nBytes = strlen(buffer) + 1;
 					
 						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
-						printf("Obrigado pela sua colaboracao!"); 
+						printf("\nObrigado pela sua colaboracao!"); 
 						
 						goto menu_principal;
 					}
+					
 					if(anom[0]=='2')
 					{
 						strcpy(info.nome,"ANONIMO"); 
@@ -175,31 +169,36 @@ int main(){
 						nBytes = strlen(buffer) + 1;
 					
 						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
-						printf("Obrigado pela sua colaboracao!"); 
+						printf("\nObrigado pela sua colaboracao!"); 
 						
 						goto menu_principal;
 					}
 					
 					else
 					{
-						printf("Opcao invalida");
+						printf("\nOpcao invalida");
 						goto nome;
-					}
-					
+					}	
 				}
+				
 				if(menu_2[0]=='2')//alterar pass da conta
 				{
+					system("clear");
+					printf("\nAlterar palavra pass");
 					char nova_pass[100];
-					printf("Insira a nova palavra pass");
-					scanf("%s", nova_pass);
-					 
+					printf("\nInsira a nova palavra pass: ");
+					scanf("\n%s", nova_pass);
 					 
 					sendto(clientSocket,nova_pass, strlen(nova_pass)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+					printf("\nPassWord alterada com sucesso");
 					
 					goto menu_principal;
 				}
+				
 				if(menu_2[0]=='3')//pedir socorro
 				{
+					system("clear");
+					printf("\nPedido de socorro");
 					printf("\nVamos enviar um alarme para a PSP em 3, 2, 1\n");
 					
 					sendto(clientSocket,user, strlen(user)+1,0,(struct sockaddr *)&serverAddr,addr_size);
@@ -207,10 +206,13 @@ int main(){
 					
 					goto menu_principal;
 				}
+				
 				if(menu_2[0]=='4')//apagar conta 
 				{
+					system("clear");
+					printf("\nApagar conta");
 					char certeza[100];
-					printf("deseja mesmo apagar a conta?");
+					printf("\nDeseja mesmo apagar a conta?");
 					scanf("%s", certeza);
 					
 					if(certeza[0]=='1')
@@ -225,33 +227,35 @@ int main(){
 					    goto menu_principal;
 					}								
 				}
+				
 				if(menu_2[0]=='5')//sistema de ajuda
-				{
+		  		{
+					system("clear");
+					printf("\nSistema de ajuda");
 					char ajuda[100];
 					menu_ajuda:
 					printf("\n1-> Como comunicar um crime?");
 					printf("\n2->Objetivo da aplicação?");
 					printf("\n3->Como funciona o sistema de alarme?");
 					scanf("%s", ajuda);
-					
-					if(ajuda[0]=='1')
+	
+					sendto(clientSocket,ajuda, strlen(ajuda)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+
+					if(ajuda[0]=='1' || ajuda[0]=='2' || ajuda[0]=='3')
 					{
-						printf("\nPara comunicar um crime será necessário colocar a data, hora, local o tipo de agressão e o Nome ");
-						goto menu_principal;
-					}
-					if(ajuda[0]=='2')
-					{
-						printf("\nEsta aplicação tem como objetivo a proteção dos profissionais de saude que se sintam ameaçados em ambiente profissonal");
-						goto menu_principal;
-					}
-					if(ajuda[0]=='3')
-					{
-						printf("\nQuando prime o sistema de alarme, é enviado instantaneamente um alarme para um profissional de agente de segurança, que irá aparecer o mais breve possível");
+						char mensagem[100];
+						nBytes = recvfrom(clientSocket,mensagem,100,0,NULL, NULL);
+
+						printf("\n%s", mensagem);
+						
 						goto menu_principal;
 					}
 					else
 					{
-						printf("Opcao invalida");
+						char aviso[100];
+						nBytes = recvfrom(clientSocket,aviso,100,0,NULL, NULL);
+
+						printf("\n%s", aviso);
 						goto menu_ajuda;
 					}
 				}

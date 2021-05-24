@@ -75,10 +75,11 @@ int main(int argc, char *argv[])
 	  
 	  if(opcao[0]=='1') //utilizador validado
 	  {	  
-		  printf("\nUtlizador Válido");
+		  system("clear");
+		  printf("\nLogin efetuado com sucesso!\n");
 		  
 		  menu_principal:
-		  
+		  system("clear");
 		  printf("\nMenu");
 		  printf("\n1->Aprovar criação de contas");
 		  printf("\n2->Eliminar contas psp");
@@ -176,7 +177,17 @@ int main(int argc, char *argv[])
 			 scanf("%s", conta_apagar);
 			 write(fd, conta_apagar, strlen(conta_apagar));
 			 
+			 char sair_if[100];
+			 sair_ciclo__:
+			 
+			 printf("\nPara sair digite '1'");
+			 scanf("\n%s", sair_if);
+
+			 if(sair_if[0]=='1')
 			 goto menu_principal;
+
+			 else
+			 goto sair_ciclo__;
 
 		  }
 		 
@@ -193,7 +204,17 @@ int main(int argc, char *argv[])
 			 scanf("%s", conta_saude_apagar);
 			 write(fd, conta_saude_apagar, strlen(conta_saude_apagar));	
 			 
+			 char sair_if[100];
+			 sair_ciclo_1:
+			 
+			 printf("\nPara sair digite '1'");
+			 scanf("\n%s", sair_if);
+
+			 if(sair_if[0]=='1')
 			 goto menu_principal;
+
+			 else
+			 goto sair_ciclo_1;
 		  }
 		 
 		  if(aux[0]=='4')//alterar pass 
@@ -208,7 +229,18 @@ int main(int argc, char *argv[])
 			  scanf("%s", mudar_pass);
 			  write(fd, mudar_pass, strlen(mudar_pass));
 			  
+			  char sair_if[100];
+			  sair_ciclo_2:
+			 
+			  printf("\nPara sair digite '1'");
+			  scanf("\n%s", sair_if);
+
+			  if(sair_if[0]=='1')
 			  goto menu_principal;
+
+			  else
+			  goto sair_ciclo_2;
+		
 		  }
 		  
 		  if(aux[0]=='5')//eliminar conta
@@ -254,10 +286,23 @@ int main(int argc, char *argv[])
 	  			  mensagem[nread] = '\0';
 
 				  printf("\n%s", mensagem);
+
+				  char sair_if[100];
+				  sair_ciclo_3:
+					
+				  printf("\nPara sair digite '1'");
+				  scanf("\n%s", sair_if);
+
+				  if(sair_if[0]=='1')
+				  goto menu_principal;
+
+				  else
+				  goto sair_ciclo_3;
 			  }
 			  else
 			  {
 				  printf("Opcao invalida");
+				  goto menu_ajuda;
 			  }
 		  }
 		  else
