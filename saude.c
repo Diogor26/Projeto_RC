@@ -157,7 +157,18 @@ int main()
 						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
 						printf("\nObrigado pela sua colaboracao!"); 
 						
+											
+						char sair_if[100];
+						sair_ciclo_8:
+						
+						printf("\nPara sair digite '1'");
+						scanf("\n%s", sair_if);
+
+						if(sair_if[0]=='1')
 						goto menu_principal;
+
+						else
+						goto sair_ciclo_8;
 					}
 					
 					if(anom[0]=='2')
@@ -171,7 +182,18 @@ int main()
 						sendto(clientSocket,buffer, nBytes,0,(struct sockaddr *)&serverAddr,addr_size);
 						printf("\nObrigado pela sua colaboracao!"); 
 						
+											
+						char sair_if[100];
+						sair_ciclo_9:
+						
+						printf("\nPara sair digite '1'");
+						scanf("\n%s", sair_if);
+
+						if(sair_if[0]=='1')
 						goto menu_principal;
+
+						else
+						goto sair_ciclo_9;
 					}
 					
 					else
@@ -192,7 +214,17 @@ int main()
 					sendto(clientSocket,nova_pass, strlen(nova_pass)+1,0,(struct sockaddr *)&serverAddr,addr_size);
 					printf("\nPassWord alterada com sucesso");
 					
+					char sair_if[100];
+					sair_ciclo_6:
+			 
+					printf("\nPara sair digite '1'");
+					scanf("\n%s", sair_if);
+
+					if(sair_if[0]=='1')
 					goto menu_principal;
+
+					else
+					goto sair_ciclo_6;
 				}
 				
 				if(menu_2[0]=='3')//pedir socorro
@@ -201,10 +233,22 @@ int main()
 					printf("\nPedido de socorro");
 					printf("\nVamos enviar um alarme para a PSP em 3, 2, 1\n");
 					
-					sendto(clientSocket,user, strlen(user)+1,0,(struct sockaddr *)&serverAddr,addr_size);
+					sendto(clientSocket,user, 10,0,(struct sockaddr *)&serverAddr,addr_size);
 					printf("\nO alarme esta a ser acionado");
+
+					//printf("------------>%s", user);
 					
+					char sair_if[100];
+					sair_ciclo_10:
+					
+					printf("\nPara sair digite '1'");
+					scanf("\n%s", sair_if);
+
+					if(sair_if[0]=='1')
 					goto menu_principal;
+
+					else
+					goto sair_ciclo_10;
 				}
 				
 				if(menu_2[0]=='4')//apagar conta 
@@ -248,7 +292,18 @@ int main()
 
 						printf("\n%s", mensagem);
 						
+											
+						char sair_if[100];
+						sair_ciclo_7:
+						
+						printf("\nPara sair digite '1'");
+						scanf("\n%s", sair_if);
+
+						if(sair_if[0]=='1')
 						goto menu_principal;
+
+						else
+						goto sair_ciclo_7;
 					}
 					else
 					{

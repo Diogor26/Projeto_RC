@@ -259,7 +259,9 @@ int main()
 						}					
 						
 						nBytes = recvfrom(udpSocket,nome_vitima,strlen(nome_vitima)+1,0,(struct sockaddr *)&serverStorage, &addr_size);	
-						fprintf(urgencia, "%s %s\n", nome_vitima, "perigo");
+
+						//printf("------>%s", nome_vitima);
+						fprintf(urgencia, "%s\n", nome_vitima);
 										
 						fclose(urgencia);    		
 					}
